@@ -1,0 +1,530 @@
+<title>Guía de defensa BETO</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: columna de lectura con barra de secciones fija arriba; la arquitectura se recorre como una "pila" de etapas que se despliega. */
+:root{
+  --bg:#f5f6fa; --surface:#ffffff; --surface-2:#eceef6; --fg:#171a2b; --muted:#5b6078; --line:#d9dcea;
+  --accent:#3343c7; --accent-soft:#e3e6fb;
+  --neg:#c8443a; --neu:#b98a12; --pos:#1f8a5b;
+  --font-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1220; --surface:#171b2e; --surface-2:#20253c; --fg:#e8eaf4; --muted:#9aa0bd; --line:#2c3250;
+  --accent:#8c98ff; --accent-soft:#252c55; --neg:#f07a6f; --neu:#e2b54a; --pos:#4fc792; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1220; --surface:#171b2e; --surface-2:#20253c; --fg:#e8eaf4; --muted:#9aa0bd; --line:#2c3250;
+  --accent:#8c98ff; --accent-soft:#252c55; --neg:#f07a6f; --neu:#e2b54a; --pos:#4fc792; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 var(--font-body);margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 80px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,5vw,3.1rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.85rem;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0;max-width:68ch}
+code,.mono{font-family:var(--font-mono);font-size:.88em}
+a{color:var(--accent)}
+.eyebrow{font:600 .74rem/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+/* navegación */
+nav.secciones{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+nav.secciones .in{max-width:980px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:8px;scrollbar-width:none}
+nav.secciones a{flex:none;text-decoration:none;color:var(--muted);font-weight:500;font-size:.92rem;padding:7px 12px;border-radius:8px}
+nav.secciones a:hover{color:var(--fg);background:var(--surface-2)}
+nav.secciones a[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+section.vista{display:grid;gap:28px;padding-top:40px}
+.bloque{display:grid;gap:14px}
+.lead{font-size:1.15rem;color:var(--muted);max-width:62ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.grid2>*{min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:4px}
+.kpi b{font:700 1.9rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:.88rem}
+.pill{display:inline-block;font:600 .78rem/1 var(--font-body);padding:5px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
+.ok{background:color-mix(in srgb,var(--pos) 16%,transparent);color:var(--pos)}
+.c-neg{color:var(--neg)} .c-neu{color:var(--neu)} .c-pos{color:var(--pos)}
+ul.limpia{margin:0;padding-left:1.1em;display:grid;gap:6px;max-width:68ch}
+.tabla{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.94rem}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:.05em}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;font-family:var(--font-mono)}
+tr.destacada td{background:var(--accent-soft)}
+/* pipeline */
+.pipeline{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.pipeline .paso{flex:1 1 150px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:4px;min-width:0}
+.pipeline .paso small{color:var(--muted)}
+/* explorador de arquitectura */
+.arq{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:760px){.arq{grid-template-columns:1fr}}
+.pila{display:grid;gap:6px}
+.pila button{all:unset;cursor:pointer;display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:.94rem}
+.pila button:hover{border-color:var(--accent)}
+.pila button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pila button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.pila .n{font:600 .8rem/1 var(--font-mono);color:var(--muted)}
+.pila .forma{font:400 .74rem/1 var(--font-mono);color:var(--muted)}
+.pila .x12{border-style:dashed}
+.detalle{display:grid;gap:14px;position:sticky;top:70px}
+.detalle .forma-grande{font-family:var(--font-mono);background:var(--surface-2);border-radius:8px;padding:10px 12px;font-size:.88rem;overflow-x:auto}
+.fila-tokens{display:flex;flex-wrap:wrap;gap:4px}
+.tok{font-family:var(--font-mono);font-size:.82rem;padding:3px 7px;border-radius:6px;background:var(--surface-2)}
+/* gráficos */
+.grafico{width:100%;height:auto;display:block}
+.grafico text{fill:var(--muted);font-family:var(--font-body);font-size:12px}
+.leyenda{display:flex;flex-wrap:wrap;gap:14px;font-size:.88rem;color:var(--muted)}
+.leyenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.control{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.control button{font:500 .88rem var(--font-body);padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.control button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.control button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.matriz{display:grid;grid-template-columns:auto repeat(3,minmax(54px,1fr));gap:3px;font-variant-numeric:tabular-nums;font-size:.86rem;max-width:380px}
+.matriz div{padding:9px 6px;text-align:center;border-radius:5px}
+.matriz .h{color:var(--muted);font-size:.76rem}
+/* preguntas */
+.filtros{display:flex;flex-wrap:wrap;gap:6px}
+.pregunta{border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.pregunta summary{cursor:pointer;list-style:none;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;font-weight:600}
+.pregunta summary::-webkit-details-marker{display:none}
+.pregunta summary::after{content:"+";font:400 1.3rem/1 var(--font-mono);color:var(--muted)}
+.pregunta[open] summary::after{content:"–"}
+.pregunta summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:12px}
+.pregunta .resp{padding:0 16px 16px;display:grid;gap:10px;color:var(--fg)}
+.pregunta .resp p{max-width:72ch}
+.pregunta .tip{font-size:.9rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:10px}
+.lista-preguntas{display:grid;gap:8px}
+.examen{display:grid;gap:14px;text-align:left}
+.examen .tarjeta{min-height:150px;display:grid;align-content:center;gap:12px;padding:24px}
+.examen .q{font:700 1.35rem/1.3 var(--font-display)}
+.barra-progreso{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.barra-progreso i{display:block;height:100%;background:var(--accent);transition:width .25s}
+dl.glosario{display:grid;grid-template-columns:minmax(120px,200px) 1fr;gap:10px 18px;margin:0}
+dl.glosario dt{font-weight:600}
+dl.glosario dd{margin:0;color:var(--muted)}
+@media (max-width:560px){dl.glosario{grid-template-columns:1fr}dl.glosario dd{margin-bottom:8px}}
+.guion{counter-reset:paso;display:grid;gap:12px}
+.guion li{list-style:none;display:grid;grid-template-columns:72px 1fr;gap:12px}
+.guion .t{font:600 .85rem/1.6 var(--font-mono);color:var(--accent)}
+.aviso{border:1px dashed var(--neu);border-radius:12px;padding:14px 16px;background:color-mix(in srgb,var(--neu) 8%,transparent)}
+.formula{font-family:var(--font-mono);background:var(--surface-2);padding:10px 12px;border-radius:8px;overflow-x:auto;white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<nav class="secciones" aria-label="Secciones"><div class="in" id="nav"></div></nav>
+<div class="wrap" id="app"></div>
+
+<script id="datos" type="application/json">/*__DATOS__*/</script>
+<script>
+const D = JSON.parse(document.getElementById('datos').textContent);
+const $ = (s, el=document) => el.querySelector(s);
+const pct = x => x==null ? '—' : (x*100).toFixed(1).replace('.', ',') + '%';
+const dec = x => x==null ? '—' : x.toFixed(3).replace('.', ',');
+const miles = x => x==null ? '—' : x.toLocaleString('es-CO');
+const COL = ['var(--neg)','var(--neu)','var(--pos)'];
+const CLASES = ['negativo','neutral','positivo'];
+const B = D.modelos.beto, M = D.modelos.mdistilbert, T = D.modelos.tfidf;
+const EXT = B.externo_colombia;
+
+/* -------- Secciones -------- */
+const SECCIONES = [
+  ['resumen','Resumen'], ['datos','Datos'], ['arquitectura','Arquitectura'], ['capas','Etapas intermedias'],
+  ['entrenamiento','Entrenamiento'], ['resultados','Resultados'], ['preguntas','Preguntas'], ['guion','Guion'], ['glosario','Glosario']
+];
+
+function vistaResumen(){ return `
+<section class="vista">
+  <div class="bloque">
+    <span class="eyebrow">Proyecto final · Redes neuronales · David Quintero Gallego</span>
+    <h1>Sentimiento en reseñas de negocios con BETO</h1>
+    <p class="lead">Clasificador de tres clases (negativo, neutral, positivo) para reseñas en español, construido ajustando (<em>fine-tuning</em>) un Transformer preentrenado en español, y comparado contra un modelo clásico y un Transformer multilingüe más pequeño.</p>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><span>F1 macro de BETO en prueba</span><b>${dec(B.test.f1_macro)}</b><span>${B.test.f1_macro>=0.70?'<span class="pill ok">Meta ≥ 0,70 cumplida</span>':'Meta: 0,70'}</span></div>
+    <div class="kpi"><span>Accuracy en prueba</span><b>${pct(B.test.accuracy)}</b><span>${miles(D.datos.tamanos.test)} reseñas nunca vistas</span></div>
+    <div class="kpi"><span>Mejora sobre TF-IDF</span><b>+${((B.test.f1_macro-T.test.f1_macro)*100).toFixed(1).replace('.',',')} pts</b><span>F1 macro, mismo conjunto de prueba</span></div>
+    <div class="kpi"><span>Reseñas de entrenamiento</span><b>${miles(D.datos.tamanos.train)}</b><span>de ${miles(D.datos.n_original)} en Rest-Mex 2025</span></div>
+  </div>
+  <div class="bloque">
+    <h2>La idea en 30 segundos</h2>
+    <p>Un negocio recibe cientos de reseñas. Las estrellas no siempre cuentan la historia completa, y muchas plataformas ni siquiera las tienen. Quise un modelo que lea el texto y diga si la opinión es negativa, neutral o positiva. En lugar de entrenar una red desde cero, partí de <b>BETO</b>, un BERT que ya leyó ~3.000 millones de palabras en español, y le enseñé esta tarea específica con ${miles(D.datos.tamanos.train)} reseñas de TripAdvisor México. Es la misma lógica que usar una VGG o ResNet preentrenada en ImageNet para clasificar imágenes propias: <b>transfer learning</b>.</p>
+  </div>
+  <div class="bloque">
+    <h3>Flujo del proyecto</h3>
+    <div class="pipeline">
+      <div class="paso"><span class="eyebrow">Datos</span><b>Rest-Mex 2025</b><small>${miles(D.datos.n_original)} reseñas, 1–5 estrellas</small></div>
+      <div class="paso"><span class="eyebrow">Preproceso</span><b>Limpieza y 3 clases</b><small>ftfy, duplicados, balanceo, 70/15/15</small></div>
+      <div class="paso"><span class="eyebrow">Modelos</span><b>TF-IDF · mDistilBERT · BETO</b><small>mismo split para los tres</small></div>
+      <div class="paso"><span class="eyebrow">Selección</span><b>Curvas de validación</b><small>lr y max_len por F1 macro</small></div>
+      <div class="paso"><span class="eyebrow">Evaluación</span><b>Prueba + dominio</b><small>test balanceado, natural y Colombia</small></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="panel bloque"><h3>Objetivo general</h3><p>Clasificador de 3 clases con BETO que alcance F1 macro ≥ 0,70 en prueba, y cuantificar cuánto se degrada en reseñas reales de Google de negocios colombianos.</p></div>
+    <div class="panel bloque"><h3>Objetivos específicos</h3><ul class="limpia"><li>Construir el corpus (Rest-Mex → 3 clases, 70/15/15 estratificado) y el conjunto externo colombiano.</li><li>Ajustar BETO con <code>Trainer</code> de Hugging Face; elegir hiperparámetros con curvas; comparar con TF-IDF + RL y DistilBERT multilingüe.</li><li>Evaluar con accuracy, F1 macro, recall por clase y matriz de confusión; analizar errores y cambio de dominio.</li></ul></div>
+  </div>
+</section>`; }
+
+function vistaDatos(){
+  const d = D.datos, est = d.distribucion_estrellas, maxE = Math.max(...Object.values(est));
+  const barras = Object.entries(est).map(([k,v],i)=>{
+    const c = k<=2?COL[0]:k==3?COL[1]:COL[2];
+    return `<div style="display:grid;grid-template-columns:70px 1fr 80px;gap:10px;align-items:center"><span>${'★'.repeat(k)}</span><div style="height:14px;border-radius:4px;background:${c};width:${(v/maxE*100).toFixed(1)}%"></div><span class="mono" style="text-align:right">${miles(v)}</span></div>`}).join('');
+  return `
+<section class="vista">
+  <div class="bloque"><span class="eyebrow">Etapa 1</span><h2>Datos y preprocesamiento</h2>
+  <p class="lead">Rest-Mex 2025: reseñas reales de TripAdvisor sobre hoteles, restaurantes y atractivos de México, con calificación de 1 a 5 estrellas. Licencia CC-BY-4.0.</p></div>
+  <div class="grid2">
+    <div class="panel bloque"><h3>Distribución real de estrellas</h3>${barras}
+      <p style="color:var(--muted);font-size:.9rem">Tras limpieza: ${pct(d.distribucion_real.positivo)} positivo, ${pct(d.distribucion_real.neutral)} neutral, ${pct(d.distribucion_real.negativo)} negativo. Desbalance fuerte.</p></div>
+    <div class="panel bloque"><h3>Regla de etiquetado</h3>
+      <div class="tabla"><table><tr><th>Estrellas</th><th>Clase</th><th>Id</th></tr>
+      <tr><td>1 – 2</td><td class="c-neg">negativo</td><td class="num">0</td></tr>
+      <tr><td>3</td><td class="c-neu">neutral</td><td class="num">1</td></tr>
+      <tr><td>4 – 5</td><td class="c-pos">positivo</td><td class="num">2</td></tr></table></div>
+      <p style="color:var(--muted);font-size:.9rem">La etiqueta es <em>débil</em>: sale de las estrellas, no de leer el texto. Por eso el conjunto colombiano se etiqueta a mano.</p></div>
+  </div>
+  <div class="bloque"><h3>Pasos del preprocesamiento</h3>
+  <ul class="limpia">
+    <li><b>Reparar codificación</b> con <code>ftfy</code>: el CSV trae <i>mojibake</i> como “CancÃºn” → “Cancún”.</li>
+    <li><b>Unir título + reseña</b> (“Mi lugar favorito. Excelente servicio…”): el título suele ser un resumen muy cargado de sentimiento.</li>
+    <li><b>Normalizar espacios</b> y eliminar duplicados exactos y textos vacíos (evita fuga de datos entre train y test).</li>
+    <li><b>No</b> se pasa a minúsculas ni se quitan tildes, signos o <i>stopwords</i> para BETO: el modelo es <i>cased</i> y su tokenizador ya fue entrenado con texto natural. “NO volvería” y “¡¡excelente!!” llevan información.</li>
+    <li><b>Balancear</b>: ${miles(d.por_clase)} reseñas por clase. Así el modelo no aprende a decir “positivo” siempre (lo cual daría ~87% de accuracy sin entender nada).</li>
+    <li><b>Dividir 70/15/15</b> estratificado por clase <i>y</i> tipo de negocio, con semilla 42.</li>
+  </ul></div>
+  <div class="tabla"><table>
+    <tr><th>Conjunto</th><th>Reseñas</th><th>Uso</th></tr>
+    <tr><td>Entrenamiento</td><td class="num">${miles(d.tamanos.train)}</td><td>Ajustar pesos</td></tr>
+    <tr><td>Validación</td><td class="num">${miles(d.tamanos.val)}</td><td>Elegir hiperparámetros, early stopping, mejor checkpoint</td></tr>
+    <tr><td>Prueba</td><td class="num">${miles(d.tamanos.test)}</td><td>Medición final, se toca una sola vez</td></tr>
+    <tr><td>Prueba natural</td><td class="num">${miles(d.tamanos.test_natural)}</td><td>Distribución real (≈87% positivas), reseñas fuera del corpus balanceado</td></tr>
+    <tr><td>Externo Colombia</td><td class="num">${EXT?miles(EXT.por_clase.negativo.soporte+EXT.por_clase.neutral.soporte+EXT.por_clase.positivo.soporte):'pendiente'}</td><td>Google Maps, etiquetado manual; mide cambio de dominio</td></tr>
+  </table></div>
+  <p style="color:var(--muted)">Longitud mediana: ${miles(Math.round(d.longitud_caracteres['50%']))} caracteres (≈ ${Math.round(d.longitud_caracteres['50%']/4.3)} tokens). Con <code>max_len = ${B.hiperparametros.max_len}</code> se truncan ${pct(B.fraccion_truncada_train)} de las reseñas de entrenamiento.</p>
+</section>`;}
+
+/* -------- Arquitectura -------- */
+const EJ = ['[CLS]','La','comida','estaba','deli','##cios','##a','pero','el','servicio','fue','lent','##ísimo','[SEP]'];
+const ETAPAS = [
+ {id:'texto', n:'0', t:'Texto crudo', f:'string', d:`<p>Entrada: título + reseña, sin minúsculas ni limpieza agresiva.</p><div class="forma-grande">"La comida estaba deliciosa pero el servicio fue lentísimo"</div>`},
+ {id:'tok', n:'1', t:'Tokenizador WordPiece', f:'[B, T] enteros', d:`<p>Parte el texto en <b>subpalabras</b> de un vocabulario de <b>31.002</b> piezas aprendido sobre español. Las palabras raras se dividen (<code>##</code> = continuación), así nunca hay palabras “desconocidas”. Agrega <code>[CLS]</code> al inicio y <code>[SEP]</code> al final, trunca a ${B.hiperparametros.max_len} tokens y rellena con <code>[PAD]</code> hasta el largo del lote (padding dinámico). También produce la <b>máscara de atención</b> (1 = token real, 0 = relleno).</p><div class="fila-tokens">${EJ.map(t=>`<span class="tok">${t}</span>`).join('')}</div><div class="forma-grande">input_ids: [B, T] · attention_mask: [B, T]   (B = ${B.hiperparametros.batch}, T ≤ ${B.hiperparametros.max_len})</div><p style="color:var(--muted);font-size:.9rem">La segmentación mostrada es ilustrativa.</p>`},
+ {id:'emb', n:'2', t:'Embeddings', f:'[B, T, 768]', d:`<p>Cada id se convierte en un vector de 768 números. Se <b>suman</b> tres embeddings aprendidos y luego LayerNorm + dropout:</p><ul class="limpia"><li><b>Token</b>: tabla 31.002 × 768 (≈ 23,8 M parámetros).</li><li><b>Posición</b>: tabla 512 × 768. Sin esto el Transformer no sabría el orden (la atención es invariante al orden).</li><li><b>Segmento</b> (token type): 2 × 768, distingue frase A/B; aquí todo es segmento 0.</li></ul><div class="forma-grande">x = E_tok[id] + E_pos[i] + E_seg[s]  →  LayerNorm  →  Dropout(0,1)</div>`},
+ {id:'enc', n:'3', t:'12 bloques encoder', f:'[B, T, 768] → igual', x12:true, d:`<p>Doce bloques idénticos apilados (≈ 85 M parámetros en total, 7,1 M cada uno). Cada bloque:</p><ol class="limpia"><li><b>Self-attention multi-cabeza</b> (12 cabezas × 64 dim): cada token mira a todos los demás y decide cuánto le importa cada uno.<div class="formula">Atención(Q,K,V) = softmax(Q·Kᵀ / √64 + máscara) · V</div></li><li><b>Conexión residual + LayerNorm</b>: x + Atención(x). Facilita el paso del gradiente en redes profundas.</li><li><b>Feed-forward</b> por token: 768 → 3072 → 768 con activación <b>GELU</b>.</li><li><b>Residual + LayerNorm</b> otra vez. Dropout 0,1 en ambas subcapas.</li></ol><p>La forma del tensor no cambia: entra [B, T, 768] y sale [B, T, 768], pero el contenido se vuelve cada vez más contextual. En la pestaña <a href="#capas">Etapas intermedias</a> se ve cómo aparece la separación de clases capa por capa.</p>`},
+ {id:'cls', n:'4', t:'Vector [CLS]', f:'[B, 768]', d:`<p>Se toma solo la salida de la posición 0, el token <code>[CLS]</code>. Como la atención deja que este token mire toda la frase, su vector final funciona como un <b>resumen de la reseña</b>. En el preentrenamiento original se usó para la tarea de “siguiente oración”, por eso está entrenado para agregar información de la secuencia.</p><div class="forma-grande">h_cls = H[:, 0, :]   →   [B, 768]</div>`},
+ {id:'pool', n:'5', t:'Pooler', f:'[B, 768]', d:`<p>Capa densa 768 → 768 con activación <b>tanh</b> (≈ 0,59 M parámetros), viene preentrenada con BETO. Luego <b>dropout 0,1</b> como regularización.</p><div class="forma-grande">p = tanh(W·h_cls + b)  →  Dropout(0,1)</div>`},
+ {id:'head', n:'6', t:'Cabeza de clasificación', f:'[B, 3]', d:`<p>Única capa <b>nueva</b>, inicializada al azar: lineal 768 → 3 (2.307 parámetros). Produce un <i>logit</i> por clase.</p><div class="forma-grande">z = W·p + b   →   [z_neg, z_neu, z_pos]</div>`},
+ {id:'soft', n:'7', t:'Softmax + pérdida', f:'[B, 3] probabilidades', d:`<p><b>Softmax</b> convierte los logits en probabilidades que suman 1; la predicción es la clase con mayor probabilidad. En entrenamiento se usa <b>entropía cruzada</b> contra la etiqueta verdadera, y el gradiente fluye hacia atrás por <i>todas</i> las capas (fine-tuning completo, nada congelado).</p><div class="formula">p_k = e^{z_k} / Σ_j e^{z_j}        L = −log p_{y}</div>`},
+];
+function vistaArquitectura(){ return `
+<section class="vista">
+  <div class="bloque"><span class="eyebrow">Etapa 2</span><h2>Arquitectura: BETO + cabeza de clasificación</h2>
+  <p class="lead">BETO es un BERT-base (solo encoder) preentrenado por la U. de Chile sobre ~3.000 M de palabras en español con <i>Whole Word Masking</i>. Total ≈ ${(B.parametros_entrenables/1e6).toFixed(1).replace('.',',')} M parámetros, todos entrenables. Toca cada etapa para ver qué hace y la forma del tensor.</p></div>
+  <div class="arq">
+    <div class="pila" role="group" aria-label="Etapas del modelo">${ETAPAS.map((e,i)=>`<button data-et="${i}" aria-pressed="${i===1}" class="${e.x12?'x12':''}"><span class="n">${e.n}</span><span>${e.t}${e.x12?' <span class="pill">×12</span>':''}</span><span class="forma">${e.f}</span></button>`).join('')}</div>
+    <div class="detalle panel" id="det"></div>
+  </div>
+  <div class="bloque"><h3>Hiperparámetros de la arquitectura</h3>
+  <div class="tabla"><table><tr><th></th><th>BETO</th><th>DistilBERT multilingüe</th></tr>
+   <tr><td>Checkpoint</td><td class="mono">${B.modelo}</td><td class="mono">${M.modelo}</td></tr>
+   <tr><td>Capas encoder</td><td class="num">12</td><td class="num">6</td></tr>
+   <tr><td>Dimensión oculta / cabezas</td><td class="num">768 / 12</td><td class="num">768 / 12</td></tr>
+   <tr><td>Feed-forward</td><td class="num">3072</td><td class="num">3072</td></tr>
+   <tr><td>Vocabulario</td><td class="num">31.002 (español)</td><td class="num">119.547 (104 idiomas)</td></tr>
+   <tr><td>Parámetros</td><td class="num">${(B.parametros_entrenables/1e6).toFixed(1)} M</td><td class="num">${(M.parametros_entrenables/1e6).toFixed(1)} M</td></tr>
+   <tr><td>Preentrenamiento</td><td>MLM con Whole Word Masking, solo español</td><td>Destilado de mBERT (Wikipedia en 104 idiomas)</td></tr>
+  </table></div>
+  <p style="color:var(--muted)">DistilBERT tiene la mitad de capas pero <em>más</em> parámetros porque su vocabulario multilingüe es enorme: casi la mitad de sus pesos son embeddings de idiomas que no usamos.</p></div>
+</section>`;}
+
+/* -------- Capas -------- */
+function graficoSondas(){
+  const C = D.capas; if(!C) return '<p>Sin datos.</p>';
+  const W=640,H=300,ml=46,mr=16,mt=16,mb=52, n=C.capas.length;
+  const vals=[...C.sonda_f1_preentrenado,...C.sonda_f1_finetuned];
+  const y0=Math.floor(Math.min(...vals)*10)/10, y1=1;
+  const X=i=>ml+i*(W-ml-mr)/(n-1), Y=v=>mt+(y1-v)*(H-mt-mb)/(y1-y0);
+  let g='';
+  for(let v=y0; v<=y1+1e-9; v+=0.1){ g+=`<line x1="${ml}" x2="${W-mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${ml-8}" y="${Y(v)+4}" text-anchor="end">${v.toFixed(1).replace('.',',')}</text>`; }
+  C.capas.forEach((c,i)=>{ g+=`<text x="${X(i)}" y="${H-mb+18}" text-anchor="middle">${i===0?'emb':i}</text>`; });
+  g+=`<text x="${(ml+W-mr)/2}" y="${H-8}" text-anchor="middle">capa del encoder (0 = embeddings)</text>`;
+  const linea=(arr,col,dash)=>`<polyline fill="none" stroke="${col}" stroke-width="2.5" ${dash?'stroke-dasharray="6 5"':''} points="${arr.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`+arr.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3.5" fill="${col}"><title>Capa ${i}: F1 ${dec(v)}</title></circle>`).join('');
+  g+=linea(C.sonda_f1_preentrenado,'var(--muted)',true)+linea(C.sonda_f1_finetuned,'var(--accent)',false);
+  const last=C.sonda_f1_finetuned.length-1;
+  g+=`<text x="${X(last)-6}" y="${Y(C.sonda_f1_finetuned[last])-10}" text-anchor="end" style="fill:var(--accent);font-weight:600">${dec(C.sonda_f1_finetuned[last])}</text>`;
+  return `<svg class="grafico" viewBox="0 0 ${W} ${H}" role="img" aria-label="F1 de la sonda lineal por capa">${g}</svg>
+  <div class="leyenda"><span><i style="background:var(--accent)"></i>BETO ajustado (fine-tuned)</span><span><i style="background:var(--muted)"></i>BETO de fábrica (sin ajustar)</span></div>`;
+}
+function graficoPCA(capa, cual){
+  const pts = D.capas[cual==='ft'?'pca_finetuned':'pca_preentrenado'][capa]; const S=300,m=12;
+  const P=v=>m+(v+1)/2*(S-2*m);
+  return `<svg class="grafico" viewBox="0 0 ${S} ${S}" role="img" aria-label="Proyección PCA del vector CLS en la capa ${capa}" style="max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:10px">${pts.map(([a,b,c])=>`<circle cx="${P(a).toFixed(1)}" cy="${P(-b).toFixed(1)}" r="3" fill="${COL[c]}" fill-opacity=".7"/>`).join('')}</svg>`;
+}
+function vistaCapas(){
+  const C = D.capas;
+  return `
+<section class="vista">
+  <div class="bloque"><span class="eyebrow">Lo que el profe quiere ver</span><h2>Etapas intermedias: qué pasa dentro de las 12 capas</h2>
+  <p class="lead">Extraje el vector <code>[CLS]</code> a la salida de cada una de las 13 etapas (embeddings + 12 encoders) para ${miles(C?C.n_muestras:2100)} reseñas de prueba, y medí qué tan separables son las clases en cada etapa con una <b>sonda lineal</b>: una regresión logística entrenada encima de ese vector congelado.</p></div>
+  <div class="panel bloque"><h3>F1 macro de la sonda lineal por capa</h3>${graficoSondas()}
+  <ul class="limpia" style="color:var(--muted)">
+   <li><b>Etapa 0 (embeddings) = ${dec(C?C.sonda_f1_finetuned[0]:null)}, azar puro.</b> Antes de la atención, el vector de <code>[CLS]</code> es el mismo para todas las reseñas (mismo token, misma posición 0): todavía no ha “leído” nada. Desde la capa 1 ya depende del texto, porque la atención le trae información de las demás palabras.</li>
+   <li><b>Sin ajustar</b>, BETO ya codifica algo de sentimiento (sonda de la mejor capa ≈ ${dec(C?Math.max(...C.sonda_f1_preentrenado):null)}): el preentrenamiento aprendió rasgos útiles, igual que las capas intermedias de una VGG preentrenada ya detectan bordes y texturas.</li>
+   <li><b>Ajustado</b>, la separabilidad sube sobre todo en las capas altas: el fine-tuning reescribe principalmente las capas finales para la tarea, mientras las primeras (sintaxis, morfología) cambian poco.</li>
+   <li>En el modelo de fábrica la última capa no es la mejor: está especializada en su tarea de preentrenamiento (predecir palabras ocultas), no en sentimiento.</li>
+   <li>La sonda queda por debajo del modelo completo (${dec(B.test.f1_macro)}) porque se entrena con solo ${miles(Math.round((C?C.n_muestras:2100)*0.7))} reseñas y usa el [CLS] crudo, sin el pooler ni la cabeza.</li></ul></div>
+  <div class="panel bloque"><h3>Cómo se separan las clases (PCA 2D del [CLS])</h3>
+   <div class="control" id="ctrl-pca">${Object.keys(C?C.pca_finetuned:{}).map((k,i)=>`<button data-capa="${k}" aria-pressed="${k==='12'}">${k==='0'?'Embeddings':'Capa '+k}</button>`).join('')}
+   <span style="flex:1"></span><button data-modo="ft" aria-pressed="true">Ajustado</button><button data-modo="pre" aria-pressed="false">De fábrica</button></div>
+   <div id="pca"></div>
+   <div class="leyenda"><span><i style="background:var(--neg)"></i>negativo</span><span><i style="background:var(--neu)"></i>neutral</span><span><i style="background:var(--pos)"></i>positivo</span></div>
+   <p style="color:var(--muted)">Cada punto es una reseña proyectada de 768 a 2 dimensiones. En la capa 12 del modelo ajustado se forman tres grupos con el neutral en medio; esa es la geometría que la capa lineal final separa con dos rectas.</p></div>
+  <div class="panel bloque"><h3>A qué palabras mira el [CLS] (última capa)</h3>
+   <div class="control" id="ctrl-att">${(C?C.atencion:[]).map((a,i)=>`<button data-i="${i}" aria-pressed="${i===0}">Ejemplo ${i+1}</button>`).join('')}</div>
+   <div id="att" class="fila-tokens" style="gap:6px"></div>
+   <p style="color:var(--muted);font-size:.9rem">Intensidad = peso de atención del token [CLS] hacia cada token, promedio de las 12 cabezas de la capa 12 (la escala de color excluye [CLS] y [SEP]). Detalle curioso: [SEP] se lleva cerca del ${pct(C?C.atencion[0].pesos[C.atencion[0].pesos.length-1]:null)} de la atención. Es un fenómeno conocido en BERT (Clark et al., 2019): las cabezas usan [SEP] como “no-op” cuando no tienen nada útil que mirar. Por eso la atención es una pista de interpretabilidad, no una explicación causal completa.</p></div>
+</section>`;}
+
+/* -------- Entrenamiento -------- */
+function curvas(hist){
+  const tr=hist.filter(h=>h.loss!=null&&h.epoch!=null), ev=hist.filter(h=>h.eval_loss!=null);
+  const W=640,H=280,ml=44,mr=44,mt=14,mb=40;
+  const maxE=Math.max(...hist.map(h=>h.epoch||0));
+  const maxL=Math.max(...tr.map(h=>h.loss),...ev.map(h=>h.eval_loss))*1.05;
+  const X=e=>ml+e/maxE*(W-ml-mr), YL=l=>mt+(1-l/maxL)*(H-mt-mb), YF=f=>mt+(1-(f-0.4)/0.6)*(H-mt-mb);
+  let g='';
+  for(let i=0;i<=4;i++){const l=maxL*i/4; g+=`<line x1="${ml}" x2="${W-mr}" y1="${YL(l)}" y2="${YL(l)}" stroke="var(--line)"/><text x="${ml-6}" y="${YL(l)+4}" text-anchor="end">${l.toFixed(2).replace('.',',')}</text>`;}
+  for(let f=0.4;f<=1.0001;f+=0.2){g+=`<text x="${W-mr+6}" y="${YF(f)+4}" style="fill:var(--accent)">${f.toFixed(1).replace('.',',')}</text>`;}
+  for(let e=0;e<=Math.ceil(maxE);e++){g+=`<text x="${X(e)}" y="${H-mb+16}" text-anchor="middle">${e}</text>`;}
+  g+=`<text x="${(ml+W-mr)/2}" y="${H-6}" text-anchor="middle">época</text>`;
+  g+=`<polyline fill="none" stroke="var(--muted)" stroke-width="1.6" points="${tr.map(h=>X(h.epoch)+','+YL(h.loss)).join(' ')}"/>`;
+  g+=`<polyline fill="none" stroke="var(--neg)" stroke-width="2.4" points="${ev.map(h=>X(h.epoch)+','+YL(h.eval_loss)).join(' ')}"/>`;
+  g+=`<polyline fill="none" stroke="var(--accent)" stroke-width="2.4" points="${ev.map(h=>X(h.epoch)+','+YF(h.eval_f1_macro)).join(' ')}"/>`;
+  const best=ev.reduce((a,b)=>b.eval_f1_macro>a.eval_f1_macro?b:a);
+  g+=`<circle cx="${X(best.epoch)}" cy="${YF(best.eval_f1_macro)}" r="5" fill="var(--accent)"><title>Mejor F1 val ${dec(best.eval_f1_macro)}</title></circle>`;
+  return `<svg class="grafico" viewBox="0 0 ${W} ${H}" role="img" aria-label="Curvas de entrenamiento">${g}</svg>
+  <div class="leyenda"><span><i style="background:var(--muted)"></i>pérdida entrenamiento</span><span><i style="background:var(--neg)"></i>pérdida validación</span><span><i style="background:var(--accent)"></i>F1 macro validación (eje derecho)</span><span>● mejor checkpoint (F1 ${dec(best.eval_f1_macro)}, época ${best.epoch.toFixed(2).replace('.',',')})</span></div>`;
+}
+function vistaEntrenamiento(){
+  const h=B.hiperparametros, busq=D.busqueda;
+  return `
+<section class="vista">
+  <div class="bloque"><span class="eyebrow">Etapa 2b</span><h2>Entrenamiento (fine-tuning)</h2>
+  <p class="lead">API <code>Trainer</code> de Hugging Face sobre una ${B.gpu}. Se ajustan <b>todos</b> los pesos (no se congela nada) con un learning rate pequeño para no destruir lo preentrenado.</p></div>
+  <div class="kpis">
+    <div class="kpi"><span>Learning rate</span><b>${h.lr.toExponential(0).replace('e-','e−')}</b><span>AdamW, decaimiento lineal</span></div>
+    <div class="kpi"><span>Batch / longitud</span><b>${h.batch} / ${h.max_len}</b><span>reseñas por paso / tokens</span></div>
+    <div class="kpi"><span>Épocas</span><b>${h.epocas_max}</b><span>con early stopping (paciencia 4 evals)</span></div>
+    <div class="kpi"><span>Tiempo</span><b>${Math.round(B.segundos_entrenamiento/60)} min</b><span>fp16 (precisión mixta)</span></div>
+  </div>
+  <div class="panel bloque"><h3>Curvas del modelo final</h3>${curvas(D.historial_beto)}
+   <p style="color:var(--muted)">La pérdida de entrenamiento sigue bajando, pero la de validación toca fondo y luego sube: ahí empieza el sobreajuste. Por eso evaluamos cada 200 pasos y nos quedamos con el checkpoint de mejor F1 de validación (<code>load_best_model_at_end</code>), no con el último.</p></div>
+  <div class="bloque"><h3>Búsqueda de hiperparámetros (validación)</h3>
+  <div class="tabla"><table><tr><th>Corrida</th><th>lr</th><th>max_len</th><th>F1 val</th><th>Minutos</th></tr>
+  ${busq.map(r=>`<tr class="${r.elegida?'destacada':''}"><td>${r.nombre}${r.elegida?' <span class="pill ok">elegida</span>':''}</td><td class="num">${r.lr}</td><td class="num">${r.max_len}</td><td class="num">${dec(r.f1_val)}</td><td class="num">${Math.round(r.seg/60)}</td></tr>`).join('')}
+  </table></div>
+  <p style="color:var(--muted)">La decisión se toma solo con validación; el test se mira una vez al final.</p></div>
+  <div class="grid2">
+   <div class="panel bloque"><h3>Configuración y por qué</h3><ul class="limpia">
+    <li><b>AdamW</b>, weight decay 0,01: Adam con regularización L2 desacoplada; estándar para Transformers.</li>
+    <li><b>Warmup 10%</b>: el lr sube de 0 al valor objetivo y luego baja linealmente; evita que la cabeza aleatoria envíe gradientes enormes al inicio.</li>
+    <li><b>Entropía cruzada</b> como pérdida; <b>dropout 0,1</b> en todo el modelo.</li>
+    <li><b>Padding dinámico</b> por lote (<code>DataCollatorWithPadding</code>) y <b>fp16</b>: ~2× más rápido y menos memoria.</li>
+    <li><b>Semilla 42</b> en datos, inicialización y orden de lotes: reproducible.</li></ul></div>
+   <div class="panel bloque"><h3>Baselines</h3><ul class="limpia">
+    <li><b>TF-IDF + Regresión logística</b>: bolsa de uni y bigramas (${miles(200000)} términos máx.), C = 4. Entrena en segundos en CPU. Responde: ¿vale la pena una red de 110 M parámetros?</li>
+    <li><b>DistilBERT multilingüe</b>: mismo pipeline y Trainer, lr ${M.hiperparametros.lr}. Responde: ¿importa que el modelo esté preentrenado específicamente en español?</li></ul></div>
+  </div>
+</section>`;}
+
+/* -------- Resultados -------- */
+function matriz(cm, titulo){
+  const tot=cm.map(r=>r.reduce((a,b)=>a+b,0));
+  let h=`<div class="matriz"><div class="h"></div>${CLASES.map(c=>`<div class="h">pred. ${c.slice(0,3)}</div>`).join('')}`;
+  cm.forEach((r,i)=>{ h+=`<div class="h" style="text-align:right">real ${CLASES[i].slice(0,3)}</div>`+r.map((v,j)=>{const p=v/tot[i]; return `<div style="background:color-mix(in srgb,${i===j?'var(--accent)':'var(--neg)'} ${Math.round(p*85)}%,var(--surface-2));color:${p>.5?'var(--surface)':'var(--fg)'}" title="${miles(v)} reseñas">${pct(p)}</div>`}).join(''); });
+  return `<div class="bloque"><h3>${titulo}</h3>${h}</div><p style="color:var(--muted);font-size:.86rem">Porcentaje por fila (recall). Diagonal = aciertos.</p>`;
+}
+function filaModelo(nombre, m, conj, destacada){
+  const r=m[conj]; if(!r) return `<tr><td>${nombre}</td><td colspan="5" style="color:var(--muted)">pendiente</td></tr>`;
+  return `<tr class="${destacada?'destacada':''}"><td>${nombre}</td><td class="num">${pct(r.accuracy)}</td><td class="num"><b>${dec(r.f1_macro)}</b></td>${CLASES.map(c=>`<td class="num">${dec(r.por_clase[c].recall)}</td>`).join('')}</tr>`;
+}
+function tablaConj(conj, titulo){
+  return `<div class="bloque"><h3>${titulo}</h3><div class="tabla"><table><tr><th>Modelo</th><th>Accuracy</th><th>F1 macro</th><th>Recall neg</th><th>Recall neu</th><th>Recall pos</th></tr>
+  ${filaModelo('TF-IDF + RL',T,conj)}${filaModelo('DistilBERT multilingüe',M,conj)}${filaModelo('BETO',B,conj,true)}</table></div></div>`;
+}
+function vistaResultados(){
+  const errores = D.errores||[];
+  return `
+<section class="vista">
+  <div class="bloque"><span class="eyebrow">Etapa 3</span><h2>Resultados</h2>
+  <p class="lead">Los tres modelos se evaluaron sobre exactamente las mismas reseñas.</p></div>
+  ${tablaConj('test','Prueba balanceada ('+miles(D.datos.tamanos.test)+' reseñas)')}
+  ${tablaConj('test_natural','Prueba con distribución real ('+miles(D.datos.tamanos.test_natural)+' reseñas, ≈87% positivas)')}
+  ${EXT ? tablaConj('externo_colombia','Externo: Google Maps, negocios colombianos') : `<div class="aviso"><b>Conjunto colombiano pendiente.</b> Cuando el archivo <code>data/externo/resenas_google_colombia.csv</code> tenga las reseñas etiquetadas a mano, se vuelve a correr la evaluación y esta tabla se completa.</div>`}
+  <div class="grid2"><div class="panel">${matriz(B.test.matriz_confusion,'BETO · prueba balanceada')}</div><div class="panel">${matriz(T.test.matriz_confusion,'TF-IDF · prueba balanceada')}</div></div>
+  <div class="bloque"><h3>Lectura de los resultados</h3><ul class="limpia">
+   <li>BETO supera a TF-IDF por ${((B.test.f1_macro-T.test.f1_macro)*100).toFixed(1).replace('.',',')} puntos de F1 macro y a DistilBERT multilingüe por ${((B.test.f1_macro-M.test.f1_macro)*100).toFixed(1).replace('.',',')}. El preentrenamiento en español ayuda.</li>
+   <li><b>Neutral es la clase difícil</b> (recall ${dec(B.test.por_clase.neutral.recall)}): una reseña de 3 estrellas mezcla elogios y quejas, y la frontera con 2 o 4 estrellas es subjetiva incluso para personas.</li>
+   <li>Casi no hay confusión directa entre negativo y positivo (${pct(B.test.matriz_confusion[0][2]/B.test.matriz_confusion[0].reduce((a,b)=>a+b,0))} de negativos predichos como positivos): los errores son “de vecindad”.</li>
+   <li>En la distribución real la accuracy sube (casi todo es positivo y eso es fácil), pero el F1 macro baja porque la precisión de neutral/negativo cae: con pocas reseñas negativas, unos pocos falsos positivos pesan mucho.</li></ul></div>
+  ${errores.length?`<div class="bloque"><h3>Errores típicos de BETO (análisis cualitativo)</h3><div class="tabla"><table><tr><th>Reseña</th><th>Real</th><th>Predicho</th><th>Confianza</th></tr>${errores.map(e=>`<tr><td style="white-space:normal;min-width:260px">${e.texto}</td><td class="c-${e.real.slice(0,3)}">${e.real}</td><td class="c-${e.pred.slice(0,3)}">${e.pred}</td><td class="num">${pct(e.conf)}</td></tr>`).join('')}</table></div>
+  <p style="color:var(--muted)">Varios “errores” son en realidad etiquetas ruidosas: el texto dice una cosa y las estrellas otra. Eso pone un techo a cualquier modelo entrenado con estrellas.</p></div>`:''}
+</section>`;}
+
+/* -------- Preguntas -------- */
+const PREG = [
+ ['arq','¿Qué arquitectura usaron y por qué esa?',`Un <b>Transformer encoder</b>: BETO, que es un BERT-base (12 capas, 768 dimensiones, 12 cabezas de atención, ${(B.parametros_entrenables/1e6).toFixed(0)} M parámetros) preentrenado solo en español. Lo escogí porque (1) la atención captura relaciones entre palabras lejanas, como “pero” que invierte el sentido de toda la frase; (2) viene preentrenado, así que con ~21 mil reseñas basta para ajustarlo; (3) al ser monolingüe, su vocabulario está hecho para el español y parte menos las palabras.`, 'Cierra con el número: F1 macro de '+dec(B.test.f1_macro)+' contra '+dec(T.test.f1_macro)+' del baseline.'],
+ ['arq','¿Usaron VGG, ResNet u otra CNN? ¿Por qué no?',`No. VGG y ResNet son redes convolucionales diseñadas para <b>imágenes</b>: filtros 3×3 que explotan que los píxeles vecinos están relacionados. Nuestro dato es <b>texto</b>, una secuencia de tokens donde lo importante puede estar lejos (“la comida estaba buena… pero nunca volvería”). Lo que sí tomé de esa idea es el <b>transfer learning</b>: así como en visión se toma una VGG preentrenada en ImageNet y se le cambia la última capa, aquí tomé BETO preentrenado en millones de textos y le puse una capa de 768 → 3.`, 'Analogía clave: BETO es al texto en español lo que VGG preentrenada en ImageNet es a las imágenes.'],
+ ['arq','¿Cuáles son las etapas intermedias del modelo?',`Ocho pasos: <b>(1)</b> tokenización WordPiece a ids; <b>(2)</b> embeddings de token + posición + segmento, [B,T,768]; <b>(3)</b> 12 bloques encoder, cada uno con self-attention multi-cabeza, residual + LayerNorm, feed-forward 768→3072→768 con GELU y otra residual + LayerNorm; <b>(4)</b> se toma el vector del token [CLS], [B,768]; <b>(5)</b> pooler denso + tanh; <b>(6)</b> dropout; <b>(7)</b> lineal 768→3, logits; <b>(8)</b> softmax y entropía cruzada.`, 'Abre la pestaña Arquitectura y recórrela con el dedo mientras hablas.'],
+ ['arq','¿Qué aprende cada etapa intermedia? ¿Lo pueden mostrar?',`Sí. Extraje el [CLS] de las 13 salidas internas y entrené una sonda lineal en cada una. En la etapa de embeddings el [CLS] es idéntico para todas las reseñas (F1 de azar, ${dec(D.capas?D.capas.sonda_f1_finetuned[0]:null)}); desde la capa 1 la atención le mete información del texto, y en el modelo ajustado la separabilidad crece con la profundidad hasta F1 ≈ ${dec(D.capas?Math.max(...D.capas.sonda_f1_finetuned):null)} en las capas finales. En el BETO de fábrica ya hay señal de sentimiento (≈ ${dec(D.capas?Math.max(...D.capas.sonda_f1_preentrenado):null)} en su mejor capa), lo que demuestra que el preentrenamiento aporta. La literatura (Tenney et al., 2019; Jawahar et al., 2019) muestra que las capas bajas codifican morfología y superficie, las medias sintaxis y las altas semántica.`, 'Muestra la gráfica de sondas y el PCA de la capa 0 vs la 12.'],
+ ['arq','¿Cómo funciona la auto-atención?',`Cada token genera tres vectores con matrices aprendidas: <b>Query</b> (qué busco), <b>Key</b> (qué ofrezco) y <b>Value</b> (qué contenido aporto). El peso que el token i da al token j es softmax(Q_i·K_j / √d_k), y la salida es el promedio ponderado de los Values. Se hace en 12 cabezas de 64 dimensiones en paralelo para que cada una se especialice en un tipo de relación, y se concatenan.`, 'Fórmula: softmax(QKᵀ/√d_k)·V.'],
+ ['arq','¿Por qué se divide por √d_k?',`Porque el producto punto de vectores de 64 dimensiones crece con la dimensión; valores grandes saturan la softmax (casi one-hot) y los gradientes se vuelven casi cero. Dividir por √64 = 8 mantiene la varianza cerca de 1.`, ''],
+ ['arq','¿Qué es el token [CLS] y por qué usar solo ese?',`Es un token especial al inicio de cada secuencia. No representa ninguna palabra, así que su vector final solo contiene lo que recogió atendiendo a toda la frase: funciona como resumen. BERT se preentrenó usándolo para clasificar pares de oraciones, por eso es el punto natural para colgar el clasificador. Alternativa: promediar todos los tokens (mean pooling); el resultado suele ser parecido.`, ''],
+ ['arq','¿Qué son las conexiones residuales y LayerNorm?',`La residual suma la entrada a la salida de la subcapa (x + f(x)), así el gradiente tiene un camino directo hacia atrás y se pueden apilar 12 bloques sin desvanecimiento; es la misma idea que hizo funcionar a ResNet. LayerNorm normaliza cada vector a media 0 y varianza 1 (con escala y sesgo aprendidos), estabilizando el entrenamiento.`, 'Puente con visión: “la residual es la idea de ResNet aplicada al Transformer”.'],
+ ['arq','¿Cómo sabe el modelo el orden de las palabras?',`La atención por sí sola no ve el orden: trata la frase como un conjunto. BERT suma un <b>embedding de posición aprendido</b> (una tabla de 512 posiciones × 768) al embedding de cada token. Por eso el máximo de BERT son 512 tokens.`, ''],
+ ['arq','¿Qué activación usa y por qué?',`GELU en el feed-forward (una versión suave de ReLU que pondera la entrada por la probabilidad de una normal: x·Φ(x)), tanh en el pooler y softmax a la salida para obtener probabilidades. GELU es la elección original de BERT y da gradientes no nulos para valores negativos pequeños.`, ''],
+ ['arq','¿Por qué un Transformer y no una LSTM o una RNN?',`La LSTM procesa palabra por palabra: es secuencial (lenta en GPU) y la información de palabras lejanas se diluye. El Transformer mira todas las posiciones a la vez, en paralelo, con caminos de longitud 1 entre cualquier par de palabras. Y lo decisivo: existen Transformers preentrenados en español, mientras que una LSTM habría que entrenarla desde cero con solo 21 mil ejemplos.`, ''],
+ ['arq','¿Por qué BETO y no BERT multilingüe, XLM-R o un LLM como GPT?',`Comparé contra DistilBERT multilingüe y BETO ganó por ${((B.test.f1_macro-M.test.f1_macro)*100).toFixed(1).replace('.',',')} puntos. Un vocabulario solo en español representa mejor las palabras (menos fragmentación) y todo su preentrenamiento es en español. XLM-R-base o RoBERTa-BNE serían alternativas razonables. Un LLM generativo es muchísimo más grande y costoso para una tarea de clasificación cerrada; un encoder ajustado es más barato, más rápido y más fácil de evaluar.`, ''],
+ ['arq','¿Qué es WordPiece y qué pasa con palabras que no conoce?',`Es un tokenizador por subpalabras: el vocabulario (31.002 piezas en BETO) contiene palabras frecuentes completas y fragmentos. Una palabra rara se divide en piezas conocidas (“lentísimo” → “lent” + “##ísimo”). Así no hay palabras fuera de vocabulario y el modelo aprovecha la morfología.`, ''],
+ ['arq','¿Qué significa “cased” y “Whole Word Masking”?',`<b>Cased</b>: distingue mayúsculas y minúsculas y conserva tildes (“PÉSIMO” lleva información). <b>Whole Word Masking</b> es cómo se preentrenó: se ocultan palabras completas (todas sus subpalabras) y el modelo debe adivinarlas por contexto (Masked Language Modeling). Ese ejercicio es lo que le enseña el idioma.`, ''],
+ ['ent','¿Qué es fine-tuning? ¿Congelaron capas?',`Fine-tuning es continuar el entrenamiento de un modelo preentrenado en nuestra tarea. Agregué la capa 768→3 aleatoria y actualicé <b>todos</b> los pesos (no congelé nada) con un learning rate pequeño. La alternativa, “feature extraction”, congela BETO y entrena solo la cabeza; la sonda lineal sobre el BETO de fábrica es justamente eso y da ≈ ${dec(D.capas?Math.max(...D.capas.sonda_f1_preentrenado):null)}, bastante menos que ajustar todo.`, 'Este contraste (congelado vs ajustado) es un argumento fuerte; tenlo a mano.'],
+ ['ent','¿Por qué un learning rate tan pequeño?',`Con ${B.hiperparametros.lr} los pesos preentrenados cambian poco. Con valores grandes (1e-3, típico al entrenar desde cero) se destruye lo aprendido (<i>catastrophic forgetting</i>) y el entrenamiento diverge. Probé ${[...new Set(D.busqueda.map(r=>r.lr))].join(', ')} y elegí por F1 de validación.`, ''],
+ ['ent','¿Cómo eligieron los hiperparámetros?',`Con el conjunto de validación: evalué cada 200 pasos, miré la curva de pérdida y de F1, comparé learning rates y longitudes máximas, y me quedé con la mejor combinación. El test no se usó para decidir nada.`, 'Muestra la tabla de búsqueda en la pestaña Entrenamiento.'],
+ ['ent','¿Qué optimizador y qué función de pérdida?',`AdamW (Adam con weight decay desacoplado, 0,01), warmup lineal del 10% y decaimiento lineal del lr hasta 0. Pérdida: entropía cruzada entre la softmax de 3 clases y la etiqueta.`, ''],
+ ['ent','¿Qué es el warmup y para qué sirve?',`Durante el primer 10% de pasos el learning rate sube de 0 al valor objetivo. Al inicio la cabeza es aleatoria y produce gradientes grandes y ruidosos; si el lr ya estuviera alto, esos gradientes dañarían las capas preentrenadas. Además los momentos de Adam aún no están bien estimados.`, ''],
+ ['ent','¿Hubo sobreajuste? ¿Cómo lo controlaron?',`Sí aparece: la pérdida de entrenamiento sigue bajando mientras la de validación sube después de cierto punto. Lo controlé con (1) evaluación periódica y quedarme con el mejor checkpoint de validación, (2) early stopping, (3) dropout 0,1 y weight decay, (4) pocas épocas, que es lo normal en fine-tuning.`, 'Señala en la curva el punto donde la pérdida de validación toca fondo.'],
+ ['ent','¿Por qué max_len = '+B.hiperparametros.max_len+'?',`La mediana es de ~${Math.round(D.datos.longitud_caracteres['50%']/4.3)} tokens; con ${B.hiperparametros.max_len} se trunca el ${pct(B.fraccion_truncada_train)} de las reseñas. Con 128 se truncaba el 25%: el final de muchas reseñas (donde suele estar el “pero…” o la conclusión) se perdía. Con 256 sube el F1 de validación y el entrenamiento tarda ~40% más; como la atención cuesta O(T²), duplicar la longitud cuadruplica el costo de esa parte. No usé 512 porque casi nada se trunca ya y el costo se dispararía.`, 'Si pregunta por la comparación justa: DistilBERT se entrenó con 128; la diferencia contra BETO-128 (misma longitud) es casi la misma.'],
+ ['ent','¿Cuánto tardó y en qué hardware?',`Una ${B.gpu} de portátil (8 GB). BETO final: ${Math.round(B.segundos_entrenamiento/60)} min con precisión mixta fp16. TF-IDF: ${T.segundos_entrenamiento} s en CPU.`, ''],
+ ['ent','¿Qué es fp16 / precisión mixta?',`Los cálculos pesados se hacen en coma flotante de 16 bits (más rápido en tensor cores y la mitad de memoria) mientras una copia maestra de los pesos se mantiene en 32 bits. Un escalado de la pérdida evita que gradientes pequeños se vuelvan cero.`, ''],
+ ['ent','¿Cómo aseguran reproducibilidad?',`Semilla 42 fija en el muestreo, la división, la inicialización de la cabeza y el orden de los lotes; versiones de librerías en <code>requirements.txt</code>; todo el pipeline son scripts que se corren en orden.`, ''],
+ ['dat','¿De dónde salen los datos? ¿Cómo los etiquetaron?',`Rest-Mex 2025: ${miles(D.datos.n_original)} reseñas de TripAdvisor de México (hoteles, restaurantes, atractivos), licencia CC-BY-4.0. 1–2 estrellas = negativo, 3 = neutral, 4–5 = positivo. Es supervisión débil: la etiqueta viene de las estrellas del autor.`, ''],
+ ['dat','¿Por qué balancearon las clases? ¿Eso no sesga el modelo?',`El ${pct(D.datos.distribucion_real.positivo)} es positivo. Sin balancear, el modelo puede aprender a decir “positivo” casi siempre y tener ~87% de accuracy sin entender nada. Balanceando, aprende las tres clases por igual. El costo es que su “prior” no coincide con la realidad; por eso lo evalué también sobre una muestra con la distribución real (F1 macro ${dec(B.test_natural.f1_macro)}, accuracy ${pct(B.test_natural.accuracy)}). Alternativas: pesos de clase en la pérdida o ajustar umbrales.`, ''],
+ ['dat','¿Por qué F1 macro y no accuracy?',`Accuracy premia a la clase mayoritaria. F1 macro calcula el F1 (media armónica de precisión y recall) por clase y los promedia sin ponderar, así la clase neutral pesa lo mismo que la positiva. Es la métrica coherente con el objetivo: que el modelo sirva para las tres clases.`, ''],
+ ['dat','¿Por qué tres clases y no dos o cinco?',`Dos clases es más fácil pero pierde las reseñas mixtas, que son justo las que un negocio necesita revisar. Cinco clases (predecir la estrella exacta) es muy ruidoso: la diferencia entre 4 y 5 estrellas es más del autor que del texto. Tres clases es el punto útil.`, ''],
+ ['dat','¿Cómo evitaron fuga de datos?',`Eliminé duplicados exactos antes de dividir; la división es una sola vez con semilla; el tokenizador viene preentrenado (no se ajusta sobre test); los hiperparámetros se eligieron solo con validación; el test natural usa reseñas que no están en el corpus balanceado y el conjunto colombiano nunca se usó para entrenar.`, ''],
+ ['dat','¿Qué preprocesamiento hicieron y por qué tan poco?',`Reparar codificación con ftfy, unir título + texto, normalizar espacios y quitar duplicados. No quité stopwords, tildes ni mayúsculas para BETO porque el modelo se preentrenó con texto natural y esas señales (“NO”, “¡¡!!”, “pero”) importan. El TF-IDF sí pasa a minúsculas.`, ''],
+ ['res','¿Cumplieron el objetivo?',`Sí: F1 macro de BETO en prueba = <b>${dec(B.test.f1_macro)}</b> (meta 0,70), accuracy ${pct(B.test.accuracy)}. ${EXT?`En el conjunto colombiano obtuvo F1 macro ${dec(EXT.f1_macro)}, una ${EXT.f1_macro<B.test.f1_macro?'caída':'variación'} de ${(Math.abs(B.test.f1_macro-EXT.f1_macro)*100).toFixed(1).replace('.',',')} puntos.`:'La evaluación en Colombia se presenta con el conjunto externo etiquetado a mano.'}`, ''],
+ ['res','¿Por qué falla más en la clase neutral?',`Porque es intrínsecamente ambigua: una reseña de 3 estrellas suele mezclar cosas buenas y malas, y lo que para un autor es 3 para otro es 2 o 4. La matriz de confusión muestra que casi todos sus errores van a la clase vecina, no al extremo opuesto. Parte del error es ruido de etiqueta, que pone un techo a cualquier modelo.`, ''],
+ ['res','¿Qué tan mejor es que el baseline? ¿Vale la pena?',`TF-IDF + RL logra ${dec(T.test.f1_macro)} en segundos; BETO ${dec(B.test.f1_macro)}. La ganancia está en entender contexto: negaciones, contrastes con “pero”, ironía leve. Si el presupuesto fuera mínimo, TF-IDF es un baseline digno; para producción con miles de reseñas, BETO en una GPU es viable y la mejora es significativa.`, ''],
+ ['res','¿Qué es el cambio de dominio y por qué esperan degradación en Colombia?',`El modelo aprendió de TripAdvisor México, mayormente turismo. En Google Maps de Colombia cambian: <b>país</b> (léxico: “bacano”, “chimba”, “parcero”, “tinto”), <b>plataforma</b> (reseñas de Google más cortas e informales, a veces sin texto) y <b>tipo de negocio</b> (barberías, tiendas, talleres que no estaban en el entrenamiento). Todo eso cambia la distribución de entrada respecto a la de entrenamiento.`, ''],
+ ['res','¿Qué harían para mejorar el modelo?',`(1) Etiquetar más reseñas colombianas y ajustar con ellas; (2) preentrenamiento adaptativo al dominio: seguir el MLM de BETO con reseñas colombianas sin etiqueta; (3) probar RoBERTa-BNE o XLM-R; (4) pesos de clase o umbrales para la distribución real; (5) limpiar etiquetas ruidosas; (6) ensamble con el baseline.`, ''],
+ ['res','¿El modelo entiende sarcasmo?',`Parcialmente. Captura contrastes explícitos (“bonito, pero…”), pero el sarcasmo sin marcas (“excelente, solo esperamos una hora”) sigue siendo un caso de error frecuente. Aparece en el análisis de errores.`, ''],
+ ['res','¿Para qué sirve esto en la vida real?',`Para que un negocio con muchas sedes monitoree automáticamente lo que dicen sus clientes, priorice reseñas negativas para responder rápido y mida la evolución del sentimiento por sede, incluso en canales sin estrellas (encuestas, WhatsApp, redes).`, ''],
+];
+const CATS = {arq:'Arquitectura', ent:'Entrenamiento', dat:'Datos', res:'Resultados'};
+function vistaPreguntas(){ return `
+<section class="vista">
+  <div class="bloque"><span class="eyebrow">Preparación</span><h2>Preguntas probables del profesor</h2>
+  <p class="lead">${PREG.length} preguntas con respuesta modelo. Practica en modo examen: lee la pregunta, respóndela en voz alta y luego compara.</p></div>
+  <div class="control" id="modo"><button data-m="lista" aria-pressed="true">Lista</button><button data-m="examen" aria-pressed="false">Modo examen</button></div>
+  <div id="zona-preg"></div>
+</section>`;}
+function renderLista(cat){
+  const z=$('#zona-preg');
+  z.innerHTML = `<div class="filtros control" style="margin-bottom:12px"><button data-c="" aria-pressed="${!cat}">Todas</button>${Object.entries(CATS).map(([k,v])=>`<button data-c="${k}" aria-pressed="${cat===k}">${v}</button>`).join('')}</div>
+  <div class="lista-preguntas">${PREG.filter(p=>!cat||p[0]===cat).map(p=>`<details class="pregunta"><summary><span>${p[1]}</span></summary><div class="resp"><p>${p[2]}</p>${p[3]?`<p class="tip">${p[3]}</p>`:''}</div></details>`).join('')}</div>`;
+  z.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>renderLista(b.dataset.c||null));
+}
+let orden=[], pos=0, vista=false;
+function renderExamen(){
+  const z=$('#zona-preg');
+  if(!orden.length){ orden=PREG.map((_,i)=>i).sort(()=>Math.random()-.5); pos=0; }
+  const p=PREG[orden[pos]];
+  z.innerHTML=`<div class="examen"><div class="barra-progreso"><i style="width:${(pos+1)/orden.length*100}%"></i></div>
+   <span class="eyebrow">${CATS[p[0]]} · ${pos+1} de ${orden.length}</span>
+   <div class="panel tarjeta"><div class="q">${p[1]}</div>${vista?`<p>${p[2]}</p>${p[3]?`<p class="tip" style="font-size:.9rem;color:var(--muted)">${p[3]}</p>`:''}`:'<p style="color:var(--muted)">Respóndela en voz alta antes de ver la respuesta.</p>'}</div>
+   <div class="control"><button id="ex-prev">Anterior</button><button id="ex-ver" aria-pressed="${vista}">${vista?'Ocultar respuesta':'Ver respuesta'}</button><button id="ex-sig">Siguiente</button><span style="flex:1"></span><button id="ex-mezcla">Barajar</button></div></div>`;
+  $('#ex-ver').onclick=()=>{vista=!vista;renderExamen();};
+  $('#ex-sig').onclick=()=>{pos=(pos+1)%orden.length;vista=false;renderExamen();};
+  $('#ex-prev').onclick=()=>{pos=(pos-1+orden.length)%orden.length;vista=false;renderExamen();};
+  $('#ex-mezcla').onclick=()=>{orden=[];vista=false;renderExamen();};
+}
+
+function vistaGuion(){ return `
+<section class="vista">
+  <div class="bloque"><span class="eyebrow">Sustentación</span><h2>Guion de exposición (≈ 8 minutos)</h2>
+  <p class="lead">Una idea por bloque. Habla del problema antes que de la técnica, y cierra cada bloque con un número.</p></div>
+  <ol class="guion">
+   <li><span class="t">0:00</span><div><b>Problema.</b> Los negocios reciben muchas reseñas en español; leerlas todas no escala y las estrellas no siempre están o no cuentan todo. Objetivo: clasificar el texto en negativo, neutral o positivo, con meta de F1 macro ≥ 0,70, y ver si funciona en reseñas colombianas.</div></li>
+   <li><span class="t">1:00</span><div><b>Datos.</b> Rest-Mex 2025, ${miles(D.datos.n_original)} reseñas de TripAdvisor. Estrellas → 3 clases. Desbalance 87% positivo, por eso balanceé a ${miles(D.datos.por_clase)} por clase y dividí 70/15/15 estratificado. Mostrar la gráfica de estrellas.</div></li>
+   <li><span class="t">2:00</span><div><b>Arquitectura.</b> BETO = BERT-base en español. Recorrer las etapas: tokenizador → embeddings → 12 encoders con atención → [CLS] → pooler → lineal 768→3 → softmax. Analogía con VGG preentrenada en ImageNet: mismo principio de transfer learning, otra modalidad.</div></li>
+   <li><span class="t">3:30</span><div><b>Entrenamiento.</b> Trainer de Hugging Face, AdamW, lr ${B.hiperparametros.lr}, warmup, fp16, ${Math.round(B.segundos_entrenamiento/60)} min en una RTX 4060. Mostrar curvas: dónde empieza el sobreajuste y por qué me quedo con el mejor checkpoint.</div></li>
+   <li><span class="t">4:30</span><div><b>Etapas intermedias.</b> Gráfica de sondas por capa: el BETO de fábrica ya sabe algo de sentimiento; el ajuste lo concentra en las capas altas. PCA capa 0 vs capa 12.</div></li>
+   <li><span class="t">5:30</span><div><b>Resultados.</b> BETO ${dec(B.test.f1_macro)} vs DistilBERT ${dec(M.test.f1_macro)} vs TF-IDF ${dec(T.test.f1_macro)}. Neutral es la clase difícil. Matriz de confusión: errores entre vecinos.</div></li>
+   <li><span class="t">6:30</span><div><b>Generalización a Colombia.</b> ${EXT?`F1 macro ${dec(EXT.f1_macro)} en Google Maps colombiano.`:'Resultado del conjunto colombiano.'} Explicar país, plataforma y tipo de negocio como fuentes del cambio de dominio. Mostrar 2 errores concretos.</div></li>
+   <li><span class="t">7:30</span><div><b>Cierre.</b> Objetivo cumplido, limitaciones (etiquetas débiles, neutral, dominio) y trabajo futuro (adaptación de dominio con reseñas colombianas).</div></li>
+  </ol>
+</section>`;}
+
+function vistaGlosario(){ const G=[
+ ['Transformer','Arquitectura basada en atención, sin recurrencia ni convolución (Vaswani et al., 2017).'],
+ ['BERT','Transformer de solo encoder preentrenado con Masked Language Modeling (Devlin et al., 2019).'],
+ ['BETO','BERT-base preentrenado en español por la U. de Chile (Cañete et al., 2020).'],
+ ['DistilBERT','Versión de 6 capas entrenada por destilación: imita las salidas de un BERT “maestro”.'],
+ ['Fine-tuning','Seguir entrenando un modelo preentrenado sobre la tarea propia, ajustando todos sus pesos.'],
+ ['Transfer learning','Reutilizar lo aprendido en una tarea grande (ImageNet, texto masivo) para otra con menos datos.'],
+ ['Self-attention','Cada token pondera a todos los demás según la similitud Query–Key y combina sus Values.'],
+ ['Multi-head','Varias atenciones en paralelo (12) en subespacios de 64 dimensiones.'],
+ ['[CLS]','Token especial al inicio cuyo vector final resume la secuencia para clasificar.'],
+ ['WordPiece','Tokenizador por subpalabras; evita palabras desconocidas.'],
+ ['Logit','Salida cruda de la capa lineal antes de la softmax.'],
+ ['Softmax','Convierte logits en probabilidades positivas que suman 1.'],
+ ['Entropía cruzada','Pérdida −log(probabilidad asignada a la clase correcta).'],
+ ['AdamW','Adam con weight decay desacoplado del gradiente.'],
+ ['Warmup','Subida gradual del learning rate al inicio del entrenamiento.'],
+ ['Early stopping','Detener cuando la métrica de validación deja de mejorar.'],
+ ['F1 macro','Promedio sin ponderar del F1 de cada clase.'],
+ ['Recall','De los casos reales de una clase, qué fracción encontró el modelo.'],
+ ['Precisión','De lo que el modelo dijo que era una clase, qué fracción lo era.'],
+ ['Sonda lineal','Clasificador lineal entrenado sobre representaciones congeladas para medir qué información contienen.'],
+ ['Domain shift','Diferencia entre la distribución de entrenamiento y la de uso real.'],
+ ['TF-IDF','Peso de un término: frecuencia en el documento × rareza en el corpus.'],
+ ['fp16','Precisión mixta: cálculo en 16 bits con copia maestra en 32 bits.'],
+]; return `<section class="vista"><div class="bloque"><span class="eyebrow">Referencia</span><h2>Glosario</h2></div>
+<dl class="glosario">${G.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>
+<div class="bloque"><h3>Referencias</h3><ul class="limpia" style="color:var(--muted)">
+<li>Vaswani et al. (2017). Attention Is All You Need.</li><li>Devlin et al. (2019). BERT: Pre-training of Deep Bidirectional Transformers.</li>
+<li>Cañete et al. (2020). Spanish Pre-Trained BERT Model and Evaluation Data (BETO).</li><li>Sanh et al. (2019). DistilBERT, a distilled version of BERT.</li>
+<li>Tenney et al. (2019). BERT Rediscovers the Classical NLP Pipeline.</li><li>Rest-Mex 2025 (IberLEF), corpus de reseñas turísticas de México.</li></ul></div></section>`;}
+
+const VISTAS = {resumen:vistaResumen, datos:vistaDatos, arquitectura:vistaArquitectura, capas:vistaCapas, entrenamiento:vistaEntrenamiento, resultados:vistaResultados, preguntas:vistaPreguntas, guion:vistaGuion, glosario:vistaGlosario};
+
+function mostrar(){
+  const id = (location.hash||'#resumen').slice(1);
+  const v = VISTAS[id] ? id : 'resumen';
+  $('#app').innerHTML = VISTAS[v]();
+  document.querySelectorAll('#nav a').forEach(a=>a.setAttribute('aria-current', a.dataset.v===v?'page':'false'));
+  const act = document.querySelector(`#nav a[data-v="${v}"]`); if(act) act.scrollIntoView({block:'nearest',inline:'nearest'});
+  if(v==='arquitectura'){
+    const pintar=i=>{const e=ETAPAS[i]; $('#det').innerHTML=`<span class="eyebrow">Etapa ${e.n} · salida ${e.f}</span><h3>${e.t}</h3>${e.d}`;
+      document.querySelectorAll('.pila button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.et==i));};
+    document.querySelectorAll('.pila button').forEach(b=>b.onclick=()=>pintar(+b.dataset.et)); pintar(1);
+  }
+  if(v==='capas' && D.capas){
+    let capa='12', modo='ft';
+    const pintarPCA=()=>{$('#pca').innerHTML=graficoPCA(capa,modo);
+      document.querySelectorAll('#ctrl-pca [data-capa]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.capa===capa));
+      document.querySelectorAll('#ctrl-pca [data-modo]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.modo===modo));};
+    document.querySelectorAll('#ctrl-pca [data-capa]').forEach(b=>b.onclick=()=>{capa=b.dataset.capa;pintarPCA();});
+    document.querySelectorAll('#ctrl-pca [data-modo]').forEach(b=>b.onclick=()=>{modo=b.dataset.modo;pintarPCA();});
+    pintarPCA();
+    const pintarAtt=i=>{const a=D.capas.atencion[i]; const mx=Math.max(...a.pesos.slice(1,-1));
+      $('#att').innerHTML=a.tokens.map((t,j)=>`<span class="tok" style="background:color-mix(in srgb,var(--accent) ${Math.round(Math.min(1,a.pesos[j]/mx)*80)}%,var(--surface-2));color:${a.pesos[j]/mx>.55?'var(--surface)':'var(--fg)'}" title="${dec(a.pesos[j])}">${t}</span>`).join('');
+      document.querySelectorAll('#ctrl-att button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.i==i));};
+    document.querySelectorAll('#ctrl-att button').forEach(b=>b.onclick=()=>pintarAtt(+b.dataset.i)); pintarAtt(0);
+  }
+  if(v==='preguntas'){
+    const set=m=>{document.querySelectorAll('#modo button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m)); m==='lista'?renderLista(null):renderExamen();};
+    document.querySelectorAll('#modo button').forEach(b=>b.onclick=()=>set(b.dataset.m)); set('lista');
+  }
+}
+$('#nav').innerHTML = SECCIONES.map(([id,t])=>`<a href="#${id}" data-v="${id}">${t}</a>`).join('');
+window.addEventListener('hashchange', ()=>{ mostrar(); window.scrollTo(0,0); });
+mostrar();
+</script>

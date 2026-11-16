@@ -1,0 +1,9 @@
+# PyTorch con CUDA: pip install torch --index-url https://download.pytorch.org/whl/cu128
+torch>=2.5
+transformers>=4.46
+datasets
+accelerate
+scikit-learn
+pandas
+matplotlib
+ftfy

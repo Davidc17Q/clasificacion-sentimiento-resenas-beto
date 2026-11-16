@@ -1,0 +1,43 @@
+{
+  "n_original": 208051,
+  "n_tras_limpieza": 207867,
+  "distribucion_real": {
+    "negativo": 0.0526,
+    "neutral": 0.0746,
+    "positivo": 0.8728
+  },
+  "distribucion_estrellas": {
+    "1": 5438,
+    "2": 5492,
+    "3": 15501,
+    "4": 44980,
+    "5": 136456
+  },
+  "por_clase": 10000,
+  "tamanos": {
+    "train": 21000,
+    "val": 4500,
+    "test": 4500,
+    "test_natural": 10000
+  },
+  "test_natural_dist": {
+    "positivo": 8728,
+    "neutral": 746,
+    "negativo": 526
+  },
+  "longitud_caracteres": {
+    "count": 30000.0,
+    "mean": 428.0,
+    "std": 314.4,
+    "min": 54.0,
+    "25%": 229.0,
+    "50%": 308.0,
+    "75%": 573.0,
+    "max": 5572.0
+  },
+  "tipos": {
+    "Restaurant": 12547,
+    "Hotel": 9076,
+    "Attractive": 8377
+  }
+}

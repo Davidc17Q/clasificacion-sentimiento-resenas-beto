@@ -1,0 +1,141 @@
+{
+  "modelo": "dccuchile/bert-base-spanish-wwm-cased",
+  "hiperparametros": {
+    "lr": 2e-05,
+    "epocas_max": 4,
+    "max_len": 128,
+    "batch": 32,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "fp16": true
+  },
+  "parametros_entrenables": 109853187,
+  "fraccion_truncada_train": 0.2536,
+  "segundos_entrenamiento": 498.4,
+  "mejor_checkpoint": "C:\\Users\\AcerNitro\\Downloads\\clasificacion-sentimiento-resenas-beto\\modelos\\_checkpoints\\beto_lr2e-05_len128\\checkpoint-1200",
+  "mejor_f1_val": 0.8073,
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "val": {
+    "accuracy": 0.8047,
+    "f1_macro": 0.8073,
+    "por_clase": {
+      "negativo": {
+        "precision": 0.8422,
+        "recall": 0.804,
+        "f1": 0.8226,
+        "soporte": 1500
+      },
+      "neutral": {
+        "precision": 0.6887,
+        "recall": 0.7773,
+        "f1": 0.7303,
+        "soporte": 1500
+      },
+      "positivo": {
+        "precision": 0.9084,
+        "recall": 0.8327,
+        "f1": 0.8689,
+        "soporte": 1500
+      }
+    },
+    "matriz_confusion": [
+      [
+        1206,
+        286,
+        8
+      ],
+      [
+        216,
+        1166,
+        118
+      ],
+      [
+        10,
+        241,
+        1249
+      ]
+    ]
+  },
+  "test": {
+    "accuracy": 0.7958,
+    "f1_macro": 0.7979,
+    "por_clase": {
+      "negativo": {
+        "precision": 0.8222,
+        "recall": 0.7953,
+        "f1": 0.8085,
+        "soporte": 1500
+      },
+      "neutral": {
+        "precision": 0.6831,
+        "recall": 0.7473,
+        "f1": 0.7138,
+        "soporte": 1500
+      },
+      "positivo": {
+        "precision": 0.8999,
+        "recall": 0.8447,
+        "f1": 0.8714,
+        "soporte": 1500
+      }
+    },
+    "matriz_confusion": [
+      [
+        1193,
+        292,
+        15
+      ],
+      [
+        253,
+        1121,
+        126
+      ],
+      [
+        5,
+        228,
+        1267
+      ]
+    ]
+  },
+  "test_natural": {
+    "accuracy": 0.834,
+    "f1_macro": 0.6946,
+    "por_clase": {
+      "negativo": {
+        "precision": 0.7169,
+        "recall": 0.8042,
+        "f1": 0.7581,
+        "soporte": 526
+      },
+      "neutral": {
+        "precision": 0.2845,
+        "recall": 0.7654,
+        "f1": 0.4148,
+        "soporte": 746
+      },
+      "positivo": {
+        "precision": 0.9923,
+        "recall": 0.8417,
+        "f1": 0.9108,
+        "soporte": 8728
+      }
+    },
+    "matriz_confusion": [
+      [
+        423,
+        98,
+        5
+      ],
+      [
+        123,
+        571,
+        52
+      ],
+      [
+        44,
+        1338,
+        7346
+      ]
+    ]
+  }
+}
