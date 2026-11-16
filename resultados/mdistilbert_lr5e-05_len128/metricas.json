@@ -137,5 +137,46 @@
         7689
       ]
     ]
+  },
+  "externo_colombia": {
+    "accuracy": 0.9157,
+    "f1_macro": 0.8899,
+    "por_clase": {
+      "negativo": {
+        "precision": 0.9851,
+        "recall": 0.9167,
+        "f1": 0.9496,
+        "soporte": 72
+      },
+      "neutral": {
+        "precision": 0.6765,
+        "recall": 0.92,
+        "f1": 0.7797,
+        "soporte": 25
+      },
+      "positivo": {
+        "precision": 0.9692,
+        "recall": 0.913,
+        "f1": 0.9403,
+        "soporte": 69
+      }
+    },
+    "matriz_confusion": [
+      [
+        66,
+        5,
+        1
+      ],
+      [
+        1,
+        23,
+        1
+      ],
+      [
+        0,
+        6,
+        63
+      ]
+    ]
   }
 }

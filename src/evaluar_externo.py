@@ -13,7 +13,10 @@ import torch
 from transformers import pipeline
 
 import metricas
-from config import ETIQUETAS, RESULTADOS
+import numpy as np
+from sklearn.metrics import f1_score
+
+from config import ETIQUETAS, RESULTADOS, SEMILLA
 from externo import cargar_externo
 
 
@@ -43,16 +46,17 @@ def main():
     final = json.loads((RESULTADOS / "beto_final.json").read_text(encoding="utf-8"))
     textos = ext["texto"].tolist()
     resumen = {}
+    df = ext.copy()
+    todas = {}
 
     for clave, corrida in [("beto", final["corrida"]), ("mdistilbert", final["corrida_mdistilbert"])]:
         m = json.loads((RESULTADOS / corrida / "metricas.json").read_text(encoding="utf-8"))
         preds, probs = predecir(m["mejor_checkpoint"], textos, m["hiperparametros"]["max_len"])
+        todas[clave] = np.array(preds)
         bloque = metricas.calcular(ext["label"], preds)
         if clave == "beto":
-            df = ext.copy()
             df["pred"] = [ETIQUETAS[p] for p in preds]
             df[["p_neg", "p_neu", "p_pos"]] = probs
-            df.to_csv(RESULTADOS / "predicciones_externo.csv", index=False)
             for col in ["tipo_negocio", "ciudad"]:
                 if col in df:
                     bloque[f"por_{col}"] = {
@@ -68,9 +72,40 @@ def main():
 
     # baseline TF-IDF: se reentrena rápido para no depender de un pickle
     import baseline_tfidf
-    baseline_tfidf.main()
+    tfidf = baseline_tfidf.main()
+    todas["tfidf"] = np.asarray(tfidf.predict(ext["texto"]))
     resumen["tfidf"] = json.loads((RESULTADOS / "tfidf.json").read_text(encoding="utf-8"))["externo_colombia"]["f1_macro"]
+
+    df["pred_mdistilbert"] = [ETIQUETAS[p] for p in todas["mdistilbert"]]
+    df["pred_tfidf"] = [ETIQUETAS[p] for p in todas["tfidf"]]
+    df.to_csv(RESULTADOS / "predicciones_externo.csv", index=False)
+
+    # Bootstrap (2000 remuestreos): intervalo del 95% del F1 macro y de la diferencia BETO - otro.
+    # Con ~170 reseñas, diferencias pequeñas entre modelos pueden ser solo azar del muestreo.
+    y = ext["label"].to_numpy()
+    rng = np.random.default_rng(SEMILLA)
+    f1 = lambda yt, yp: f1_score(yt, yp, average="macro", labels=[0, 1, 2], zero_division=0)
+    muestras = {k: [] for k in todas}
+    difs = {k: [] for k in todas if k != "beto"}
+    for _ in range(2000):
+        idx = rng.integers(0, len(y), len(y))
+        v = {k: f1(y[idx], p[idx]) for k, p in todas.items()}
+        for k in todas:
+            muestras[k].append(v[k])
+        for k in difs:
+            difs[k].append(v["beto"] - v[k])
+    ic = lambda a: [round(float(np.percentile(a, 2.5)), 4), round(float(np.percentile(a, 97.5)), 4)]
+    resumen_ext = {
+        "n": int(len(y)),
+        "f1_macro": resumen,
+        "ic95_f1": {k: ic(v) for k, v in muestras.items()},
+        "ic95_diferencia_beto_menos": {k: ic(v) for k, v in difs.items()},
+        "distribucion_etiquetas": df["etiqueta"].value_counts().to_dict(),
+        "n_negocios": int(df["negocio"].nunique()), "n_ciudades": int(df["ciudad"].nunique()),
+    }
+    (RESULTADOS / "externo_resumen.json").write_text(json.dumps(resumen_ext, indent=2, ensure_ascii=False), encoding="utf-8")
     print("F1 macro en Colombia:", resumen)
+    print("IC95:", resumen_ext["ic95_f1"], "diferencias:", resumen_ext["ic95_diferencia_beto_menos"])
 
 
 if __name__ == "__main__":

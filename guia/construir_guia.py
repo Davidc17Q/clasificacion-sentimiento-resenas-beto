@@ -44,7 +44,23 @@ def main():
     errores = [{"texto": r.texto, "real": ETIQUETAS[r.label], "pred": ETIQUETAS[r.pred], "conf": round(r.conf, 3)}
                for r in sel.itertuples()]
 
+    externo = None
+    if (RES / "externo_resumen.json").exists():
+        externo = leer(RES / "externo_resumen.json")
+        pe = pd.read_csv(RES / "predicciones_externo.csv")
+        e = pe[pe["pred"] != pe["etiqueta"]].copy()
+        e["corto"] = e["texto"].str.len() < 200
+        e = e.sort_values("corto", ascending=False).head(8)
+        externo["errores_beto"] = [{"texto": r.texto, "real": r.etiqueta, "pred": r.pred, "estrellas": int(r.estrellas),
+                                    "negocio": r.tipo_negocio, "ciudad": r.ciudad} for r in e.itertuples()]
+        # aciertos curiosos: el texto contradice las estrellas y BETO sigue el texto
+        regla = pe["estrellas"].map(lambda s: "negativo" if s <= 2 else "neutral" if s == 3 else "positivo")
+        c = pe[(regla != pe["etiqueta"]) & (pe["pred"] == pe["etiqueta"])]
+        externo["aciertos_contra_estrellas"] = [{"texto": r.texto, "real": r.etiqueta, "estrellas": int(r.estrellas)}
+                                                for r in c.head(4).itertuples()]
+
     datos = {
+        "externo": externo,
         "datos": leer(RAIZ / "data" / "processed" / "resumen_datos.json"),
         "modelos": {"beto": beto, "mdistilbert": mdist, "tfidf": tfidf},
         "historial_beto": historial,

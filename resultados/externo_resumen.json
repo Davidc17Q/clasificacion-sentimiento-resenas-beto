@@ -1,0 +1,39 @@
+{
+  "n": 166,
+  "f1_macro": {
+    "beto": 0.8538,
+    "mdistilbert": 0.8899,
+    "tfidf": 0.8294
+  },
+  "ic95_f1": {
+    "beto": [
+      0.7869,
+      0.9061
+    ],
+    "mdistilbert": [
+      0.8255,
+      0.941
+    ],
+    "tfidf": [
+      0.7604,
+      0.886
+    ]
+  },
+  "ic95_diferencia_beto_menos": {
+    "mdistilbert": [
+      -0.093,
+      0.0176
+    ],
+    "tfidf": [
+      -0.0447,
+      0.096
+    ]
+  },
+  "distribucion_etiquetas": {
+    "negativo": 72,
+    "positivo": 69,
+    "neutral": 25
+  },
+  "n_negocios": 19,
+  "n_ciudades": 13
+}

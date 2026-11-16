@@ -137,5 +137,151 @@
         7426
       ]
     ]
+  },
+  "externo_colombia": {
+    "accuracy": 0.8795,
+    "f1_macro": 0.8538,
+    "por_clase": {
+      "negativo": {
+        "precision": 1.0,
+        "recall": 0.8611,
+        "f1": 0.9254,
+        "soporte": 72
+      },
+      "neutral": {
+        "precision": 0.5556,
+        "recall": 1.0,
+        "f1": 0.7143,
+        "soporte": 25
+      },
+      "positivo": {
+        "precision": 1.0,
+        "recall": 0.8551,
+        "f1": 0.9219,
+        "soporte": 69
+      }
+    },
+    "matriz_confusion": [
+      [
+        62,
+        10,
+        0
+      ],
+      [
+        0,
+        25,
+        0
+      ],
+      [
+        0,
+        10,
+        59
+      ]
+    ],
+    "por_tipo_negocio": {
+      "barbería": {
+        "n": 13,
+        "accuracy": 1.0
+      },
+      "café": {
+        "n": 34,
+        "accuracy": 0.8235
+      },
+      "droguería": {
+        "n": 1,
+        "accuracy": 1.0
+      },
+      "gimnasio": {
+        "n": 12,
+        "accuracy": 0.8333
+      },
+      "heladería": {
+        "n": 12,
+        "accuracy": 0.9167
+      },
+      "lavandería": {
+        "n": 7,
+        "accuracy": 1.0
+      },
+      "panadería": {
+        "n": 18,
+        "accuracy": 0.7778
+      },
+      "peluquería": {
+        "n": 12,
+        "accuracy": 0.8333
+      },
+      "restaurante": {
+        "n": 36,
+        "accuracy": 0.9167
+      },
+      "taller mecánico": {
+        "n": 4,
+        "accuracy": 0.75
+      },
+      "tienda de ropa": {
+        "n": 9,
+        "accuracy": 0.8889
+      },
+      "veterinaria": {
+        "n": 8,
+        "accuracy": 1.0
+      }
+    },
+    "por_ciudad": {
+      "Barranquilla": {
+        "n": 24,
+        "accuracy": 0.875
+      },
+      "Bogotá": {
+        "n": 19,
+        "accuracy": 0.9474
+      },
+      "Bucaramanga": {
+        "n": 4,
+        "accuracy": 0.75
+      },
+      "Cali": {
+        "n": 23,
+        "accuracy": 0.8261
+      },
+      "Envigado": {
+        "n": 7,
+        "accuracy": 1.0
+      },
+      "Ibagué": {
+        "n": 12,
+        "accuracy": 0.8333
+      },
+      "Itagüí": {
+        "n": 7,
+        "accuracy": 1.0
+      },
+      "Manizales": {
+        "n": 8,
+        "accuracy": 1.0
+      },
+      "Medellín": {
+        "n": 24,
+        "accuracy": 0.875
+      },
+      "Pasto": {
+        "n": 9,
+        "accuracy": 0.7778
+      },
+      "Pereira": {
+        "n": 13,
+        "accuracy": 0.8462
+      },
+      "Santa Marta": {
+        "n": 8,
+        "accuracy": 0.875
+      },
+      "Villavicencio": {
+        "n": 8,
+        "accuracy": 0.875
+      }
+    },
+    "acuerdo_manual_vs_estrellas": 0.8855
   }
 }

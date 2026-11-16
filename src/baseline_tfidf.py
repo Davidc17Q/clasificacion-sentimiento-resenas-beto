@@ -12,7 +12,7 @@ from config import DATA_PROC, RESULTADOS
 from externo import cargar_externo
 
 
-def main() -> None:
+def main():
     train = pd.read_csv(DATA_PROC / "train.csv")
     modelo = make_pipeline(
         TfidfVectorizer(ngram_range=(1, 2), min_df=2, max_features=200_000, sublinear_tf=True, lowercase=True),
@@ -41,6 +41,7 @@ def main() -> None:
     (RESULTADOS / "tfidf.json").write_text(json.dumps(salida, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({k: (v["f1_macro"] if isinstance(v, dict) and "f1_macro" in v else v)
                       for k, v in salida.items() if k != "top_terminos"}, indent=2, ensure_ascii=False))
+    return modelo
 
 
 if __name__ == "__main__":

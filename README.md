@@ -24,7 +24,7 @@ Desarrollar un clasificador de sentimiento de tres clases (negativo, neutral, po
 | DistilBERT multilingüe (lr 5e-5, 128 tokens) | 0.775 | 0.777 | 0.645 | 0.691 |
 | **BETO** (lr 2e-5, 256 tokens) | 0.804 | 0.802 | 0.772 | 0.707 |
 
-Test balanceado: 4.500 reseñas. Test natural: 10.000 reseñas con la distribución real (≈87% positivas). Meta del anteproyecto (F1 macro ≥ 0,70): **cumplida**. Conjunto colombiano: pendiente de etiquetar (ver `data/externo/INSTRUCCIONES.md`).
+Test balanceado: 4.500 reseñas. Test natural: 10.000 reseñas con la distribución real (≈87% positivas). Meta del anteproyecto (F1 macro ≥ 0,70): **cumplida**. Conjunto colombiano (Google Maps, 166 reseñas de 19 negocios en 13 ciudades, etiquetado leyendo el texto): F1 macro BETO 0.854 (IC95 0.787–0.906), DistilBERT multilingüe 0.890 (0.826–0.941), TF-IDF 0.829 (0.760–0.886). Las diferencias entre modelos no son significativas con esta muestra (bootstrap); todos los errores de BETO son predecir “neutral”. Detalle en `resultados/externo_resumen.json`.
 
 Guía de estudio interactiva: `guia/guia-defensa.html`.
 
