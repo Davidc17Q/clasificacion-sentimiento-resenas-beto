@@ -113,6 +113,19 @@ dl.glosario dd{margin:0;color:var(--muted)}
 .guion li{list-style:none;display:grid;grid-template-columns:72px 1fr;gap:12px}
 .guion .t{font:600 .85rem/1.6 var(--font-mono);color:var(--accent)}
 .aviso{border:1px dashed var(--neu);border-radius:12px;padding:14px 16px;background:color-mix(in srgb,var(--neu) 8%,transparent)}
+.simple{border-radius:10px;padding:12px 14px;background:var(--accent-soft);display:grid;gap:6px}
+.simple b.et{font:600 .72rem/1 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.capitulo{display:grid;gap:12px;padding-top:8px;border-top:1px solid var(--line);scroll-margin-top:70px}
+.capitulo .num{font:600 .8rem/1 var(--font-mono);color:var(--accent)}
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.trio>div{min-width:0;display:grid;gap:4px;align-content:start}
+.trio .eyebrow{color:var(--accent)}
+.indice{display:flex;flex-wrap:wrap;gap:6px}
+.indice a{font-size:.88rem;text-decoration:none;padding:5px 10px;border-radius:99px;border:1px solid var(--line);color:var(--fg)}
+.indice a:hover{border-color:var(--accent)}
+#neurona textarea{width:100%;min-height:70px;font:inherit;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);resize:vertical}
+.barra-neurona{height:12px;border-radius:99px;background:linear-gradient(90deg,var(--neg),var(--neu),var(--pos));position:relative}
+.barra-neurona i{position:absolute;top:-5px;width:4px;height:22px;border-radius:2px;background:var(--fg);transition:left .25s}
 .formula{font-family:var(--font-mono);background:var(--surface-2);padding:10px 12px;border-radius:8px;overflow-x:auto;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -134,7 +147,7 @@ const EXT = B.externo_colombia;
 
 /* -------- Secciones -------- */
 const SECCIONES = [
-  ['resumen','Resumen'], ['datos','Datos'], ['arquitectura','Arquitectura'], ['capas','Etapas intermedias'],
+  ['desde-cero','Empieza aquí'], ['resumen','Resumen'], ['datos','Datos'], ['arquitectura','Arquitectura'], ['capas','Etapas intermedias'],
   ['entrenamiento','Entrenamiento'], ['resultados','Resultados'], ['preguntas','Preguntas'], ['guion','Guion'], ['glosario','Glosario']
 ];
 
@@ -421,14 +434,14 @@ const CATS = {arq:'Arquitectura', ent:'Entrenamiento', dat:'Datos', res:'Resulta
 function vistaPreguntas(){ return `
 <section class="vista">
   <div class="bloque"><span class="eyebrow">Preparación</span><h2>Preguntas probables del profesor</h2>
-  <p class="lead">${PREG.length} preguntas con respuesta modelo. Practica en modo examen: lee la pregunta, respóndela en voz alta y luego compara.</p></div>
+  <p class="lead">${PREG.length} preguntas con respuesta modelo. Cada una trae primero la idea <b>en palabras simples</b> (para que la entiendas) y luego la respuesta técnica (para decirla). Practica en modo examen: lee la pregunta, respóndela en voz alta y luego compara.</p></div>
   <div class="control" id="modo"><button data-m="lista" aria-pressed="true">Lista</button><button data-m="examen" aria-pressed="false">Modo examen</button></div>
   <div id="zona-preg"></div>
 </section>`;}
 function renderLista(cat){
   const z=$('#zona-preg');
   z.innerHTML = `<div class="filtros control" style="margin-bottom:12px"><button data-c="" aria-pressed="${!cat}">Todas</button>${Object.entries(CATS).map(([k,v])=>`<button data-c="${k}" aria-pressed="${cat===k}">${v}</button>`).join('')}</div>
-  <div class="lista-preguntas">${PREG.filter(p=>!cat||p[0]===cat).map(p=>`<details class="pregunta"><summary><span>${p[1]}</span></summary><div class="resp"><p>${p[2]}</p>${p[3]?`<p class="tip">${p[3]}</p>`:''}</div></details>`).join('')}</div>`;
+  <div class="lista-preguntas">${PREG.filter(p=>!cat||p[0]===cat).map(p=>`<details class="pregunta"><summary><span>${p[1]}</span></summary><div class="resp">${simpleDe(p)}<p>${p[2]}</p>${p[3]?`<p class="tip">${p[3]}</p>`:''}</div></details>`).join('')}</div>`;
   z.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>renderLista(b.dataset.c||null));
 }
 let orden=[], pos=0, vista=false;
@@ -438,7 +451,7 @@ function renderExamen(){
   const p=PREG[orden[pos]];
   z.innerHTML=`<div class="examen"><div class="barra-progreso"><i style="width:${(pos+1)/orden.length*100}%"></i></div>
    <span class="eyebrow">${CATS[p[0]]} · ${pos+1} de ${orden.length}</span>
-   <div class="panel tarjeta"><div class="q">${p[1]}</div>${vista?`<p>${p[2]}</p>${p[3]?`<p class="tip" style="font-size:.9rem;color:var(--muted)">${p[3]}</p>`:''}`:'<p style="color:var(--muted)">Respóndela en voz alta antes de ver la respuesta.</p>'}</div>
+   <div class="panel tarjeta"><div class="q">${p[1]}</div>${vista?`${simpleDe(p)}<p>${p[2]}</p>${p[3]?`<p class="tip" style="font-size:.9rem;color:var(--muted)">${p[3]}</p>`:''}`:'<p style="color:var(--muted)">Respóndela en voz alta antes de ver la respuesta.</p>'}</div>
    <div class="control"><button id="ex-prev">Anterior</button><button id="ex-ver" aria-pressed="${vista}">${vista?'Ocultar respuesta':'Ver respuesta'}</button><button id="ex-sig">Siguiente</button><span style="flex:1"></span><button id="ex-mezcla">Barajar</button></div></div>`;
   $('#ex-ver').onclick=()=>{vista=!vista;renderExamen();};
   $('#ex-sig').onclick=()=>{pos=(pos+1)%orden.length;vista=false;renderExamen();};
@@ -455,14 +468,180 @@ function vistaGuion(){ return `
    <li><span class="t">1:00</span><div><b>Datos.</b> Rest-Mex 2025, ${miles(D.datos.n_original)} reseñas de TripAdvisor. Estrellas → 3 clases. Desbalance 87% positivo, por eso balanceé a ${miles(D.datos.por_clase)} por clase y dividí 70/15/15 estratificado. Mostrar la gráfica de estrellas.</div></li>
    <li><span class="t">2:00</span><div><b>Arquitectura.</b> BETO = BERT-base en español. Recorrer las etapas: tokenizador → embeddings → 12 encoders con atención → [CLS] → pooler → lineal 768→3 → softmax. Analogía con VGG preentrenada en ImageNet: mismo principio de transfer learning, otra modalidad.</div></li>
    <li><span class="t">3:30</span><div><b>Entrenamiento.</b> Trainer de Hugging Face, AdamW, lr ${B.hiperparametros.lr}, warmup, fp16, ${Math.round(B.segundos_entrenamiento/60)} min en una RTX 4060. Mostrar curvas: dónde empieza el sobreajuste y por qué me quedo con el mejor checkpoint.</div></li>
-   <li><span class="t">4:30</span><div><b>Etapas intermedias.</b> Gráfica de sondas por capa: el BETO de fábrica ya sabe algo de sentimiento; el ajuste lo concentra en las capas altas. PCA capa 0 vs capa 12.</div></li>
+   <li><span class="t">4:30</span><div><b>Etapas intermedias.</b> Gráfica de sondas por capa: en los embeddings el [CLS] aún no ha leído nada (azar); el BETO de fábrica ya sabe algo de sentimiento; el ajuste lo concentra en las capas altas. PCA capa 1 vs capa 12.</div></li>
    <li><span class="t">5:30</span><div><b>Resultados.</b> BETO ${dec(B.test.f1_macro)} vs DistilBERT ${dec(M.test.f1_macro)} vs TF-IDF ${dec(T.test.f1_macro)}. Neutral es la clase difícil. Matriz de confusión: errores entre vecinos.</div></li>
    <li><span class="t">6:30</span><div><b>Generalización a Colombia.</b> ${EXT?`F1 macro ${dec(EXT.f1_macro)} en Google Maps colombiano.`:'Resultado del conjunto colombiano.'} Explicar país, plataforma y tipo de negocio como fuentes del cambio de dominio. Mostrar 2 errores concretos.</div></li>
    <li><span class="t">7:30</span><div><b>Cierre.</b> Objetivo cumplido, limitaciones (etiquetas débiles, neutral, dominio) y trabajo futuro (adaptación de dominio con reseñas colombianas).</div></li>
   </ol>
 </section>`;}
 
+/* -------- Empieza aquí: curso desde cero -------- */
+const CAPS = [
+ {id:'c-ia', t:'¿Qué problema estamos resolviendo?',
+  idea:`Queremos que el computador lea una reseña (“La comida estaba fría y el mesero fue grosero”) y diga si la opinión es <b>negativa</b>, <b>neutral</b> o <b>positiva</b>. A esto se le llama <b>clasificación de sentimiento</b>. “Clasificar” es poner cada cosa en una de varias cajas.`,
+  ana:`Es como tener un empleado que lee todos los comentarios de los clientes y los separa en tres montones: quejas, comentarios tibios y elogios. Solo que este empleado es un programa y lee miles por minuto.`,
+  pro:`Las tres cajas son nuestras <b>clases</b>. Al modelo le damos texto y nos devuelve una de las tres.`},
+ {id:'c-ml', t:'Aprender con ejemplos (Machine Learning)',
+  idea:`Nadie le escribe al computador reglas como “si dice <i>delicioso</i> es positivo”. Habría que escribir millones de reglas y siempre fallarían (“nada delicioso”). En cambio, le mostramos <b>miles de ejemplos ya resueltos</b> (reseña + respuesta correcta) y el programa descubre solo los patrones. Eso es <b>aprendizaje automático</b> o <i>machine learning</i>. Como cada ejemplo trae su respuesta correcta, se llama <b>aprendizaje supervisado</b>.`,
+  ana:`Así aprende un niño a distinguir perros de gatos: nadie le da una definición, le muestran muchos perros y muchos gatos y le corrigen cuando se equivoca.`,
+  pro:`Los ejemplos resueltos salen de TripAdvisor: cada reseña trae sus estrellas, y las estrellas nos dicen la respuesta correcta (1–2 = negativo, 3 = neutral, 4–5 = positivo). Usamos ${miles(D.datos.tamanos.train)} ejemplos para aprender.`},
+ {id:'c-neurona', t:'La neurona artificial: la pieza básica',
+  idea:`Una <b>neurona artificial</b> es una cuenta muy simple: recibe varios números, multiplica cada uno por un <b>peso</b> (qué tan importante es), los suma, le suma un <b>sesgo</b> y pasa el resultado por una <b>función de activación</b> que decide “cuánto se enciende”. Los pesos son lo que la neurona <b>aprende</b>. Prueba la neurona de juguete de abajo.`,
+  ana:`Es como una balanza: cada palabra pone peso en el lado bueno o en el malo, y la balanza se inclina hacia un lado.`,
+  pro:`Nuestro modelo tiene unos <b>${(B.parametros_entrenables/1e6).toFixed(0)} millones</b> de estos pesos (se llaman <b>parámetros</b>). La neurona de juguete tiene 12.`, demo:true},
+ {id:'c-red', t:'Red neuronal: muchas neuronas en capas',
+  idea:`Una sola neurona es muy limitada: la de arriba no entiende “<i>no</i> estaba buena”. Si conectamos muchas neuronas en <b>capas</b> (la salida de una capa es la entrada de la siguiente) la red puede aprender cosas mucho más complejas. Las capas del medio se llaman <b>capas ocultas</b> o <b>etapas intermedias</b>. Cuando hay muchas capas decimos que es <b>aprendizaje profundo</b> (<i>deep learning</i>).`,
+  ana:`Es una cadena de montaje: la primera estación detecta piezas simples (palabras), las siguientes combinan piezas (frases como “no estaba buena”) y la última toma la decisión final.`,
+  pro:`BETO tiene 12 capas principales apiladas. En la pestaña <a href="#capas">Etapas intermedias</a> medimos qué sabe cada una.`},
+ {id:'c-aprende', t:'¿Cómo aprende? Error, gradiente y learning rate',
+  idea:`Al principio los pesos son casi al azar y la red se equivoca. En cada paso: (1) la red predice; (2) medimos qué tan mal lo hizo con una <b>función de pérdida</b> (<i>loss</i>), un número que es grande si se equivocó mucho; (3) calculamos hacia dónde mover cada peso para que la pérdida baje (eso es el <b>gradiente</b>, y el cálculo hacia atrás por las capas se llama <b>backpropagation</b>); (4) movemos los pesos un poquito en esa dirección. Repetimos miles de veces. Ese “poquito” es el <b>learning rate</b> (tasa de aprendizaje).`,
+  ana:`Estás en una montaña con niebla y quieres bajar al valle. No ves el valle, pero sientes con los pies hacia dónde baja el suelo y das un paso. El tamaño del paso es el learning rate: pasos enormes te hacen saltar al otro lado; pasos diminutos tardan una eternidad.`,
+  pro:`Pérdida = <b>entropía cruzada</b>. Optimizador (el que da los pasos) = <b>AdamW</b>. Learning rate = ${B.hiperparametros.lr} (muy pequeño a propósito, ver “Fine-tuning”).`},
+ {id:'c-epoca', t:'Lote, época y GPU',
+  idea:`No le mostramos los ${miles(D.datos.tamanos.train)} ejemplos de una vez: los partimos en grupitos de ${B.hiperparametros.batch} llamados <b>lotes</b> (<i>batch</i>). Cada lote = un paso de aprendizaje. Cuando la red ya vio todos los ejemplos una vez, completó una <b>época</b>. Las cuentas se hacen en una <b>GPU</b> (tarjeta de video) porque hace miles de multiplicaciones a la vez.`,
+  ana:`Estudiar un libro de ejercicios: cada sesión haces ${B.hiperparametros.batch} ejercicios y corriges; terminar el libro entero es una época.`,
+  pro:`${miles(D.datos.tamanos.train)} / ${B.hiperparametros.batch} ≈ ${Math.ceil(D.datos.tamanos.train/B.hiperparametros.batch)} pasos por época. El mejor modelo apareció antes de terminar la segunda época. Todo corrió en tu RTX 4060 en ${Math.round(B.segundos_entrenamiento/60)} minutos.`},
+ {id:'c-split', t:'Entrenamiento, validación y prueba',
+  idea:`Si evaluamos al modelo con los mismos ejemplos con que aprendió, no sabemos si entendió o si memorizó. Por eso partimos los datos en tres grupos que no se mezclan: <b>entrenamiento</b> (70%, para aprender), <b>validación</b> (15%, para tomar decisiones mientras ajustamos) y <b>prueba</b> (15%, se usa una sola vez al final para dar la nota).`,
+  ana:`Entrenamiento = los ejercicios del libro. Validación = los simulacros antes del examen (te ayudan a decidir cómo estudiar). Prueba = el examen final, que no has visto nunca.`,
+  pro:`${miles(D.datos.tamanos.train)} / ${miles(D.datos.tamanos.val)} / ${miles(D.datos.tamanos.test)} reseñas. La división es <b>estratificada</b>: cada grupo tiene la misma proporción de cada clase.`},
+ {id:'c-overfit', t:'Sobreajuste (overfitting)',
+  idea:`Si entrenamos demasiado, la red empieza a <b>memorizar</b> los ejemplos de entrenamiento en vez de aprender reglas generales. Se nota porque el error en entrenamiento sigue bajando pero el de validación empieza a subir. Para evitarlo: paramos a tiempo (<b>early stopping</b>), guardamos la mejor versión vista en validación (<b>checkpoint</b>) y apagamos neuronas al azar durante el entrenamiento (<b>dropout</b>) para que no dependa de ninguna en particular.`,
+  ana:`El estudiante que se aprende de memoria las respuestas del libro saca 5 en los ejercicios y se raja en el examen porque las preguntas son distintas.`,
+  pro:`En la pestaña <a href="#entrenamiento">Entrenamiento</a> la curva roja (error en validación) baja y luego sube: ese punto de giro es donde empieza el sobreajuste, y ahí nos quedamos con el modelo.`},
+ {id:'c-hiper', t:'Parámetros vs hiperparámetros',
+  idea:`<b>Parámetros</b> = los pesos que la red aprende sola (${(B.parametros_entrenables/1e6).toFixed(0)} millones). <b>Hiperparámetros</b> = las perillas que elegimos nosotros antes de entrenar: learning rate, tamaño de lote, número de épocas, longitud máxima del texto. Los hiperparámetros se eligen probando varias opciones y mirando cuál da mejor resultado en <b>validación</b>.`,
+  ana:`En una receta, los parámetros serían lo que el cocinero va ajustando al probar; los hiperparámetros, la temperatura del horno y el tiempo, que fijas antes de meter el pastel.`,
+  pro:`Probamos learning rates de 2e-5, 3e-5 y 5e-5, y longitudes de 128 y 256 tokens. Ganó 2e-5 con 256.`},
+ {id:'c-texto', t:'¿Cómo lee texto una red? Tokens y embeddings',
+  idea:`La red solo entiende números. Primero un <b>tokenizador</b> parte el texto en pedacitos llamados <b>tokens</b> (palabras o pedazos de palabra: “lentísimo” → “lent” + “##ísimo”) y le da a cada uno un número de su diccionario. Después cada número se cambia por un <b>embedding</b>: una lista de 768 números que representa el significado del token. Palabras parecidas (“excelente”, “buenísimo”) quedan con listas parecidas.`,
+  ana:`Un embedding es como las coordenadas GPS de una palabra en un “mapa de significados”: “rico”, “delicioso” y “sabroso” viven en el mismo barrio; “horrible” vive lejos.`,
+  pro:`Diccionario de BETO: 31.002 tokens. Cada reseña se corta en máximo ${B.hiperparametros.max_len} tokens. Ver la etapa 1 y 2 en <a href="#arquitectura">Arquitectura</a>.`},
+ {id:'c-familias', t:'Familias de redes: CNN (VGG), RNN y Transformer',
+  idea:`Hay tipos de redes para cada tipo de dato. <b>CNN</b> (redes convolucionales, como <b>VGG</b> o <b>ResNet</b>): pasan pequeñas “lupas” de 3×3 píxeles por una imagen para detectar bordes, luego texturas, luego formas; son las reinas de las <b>imágenes</b>. <b>RNN/LSTM</b>: leen el texto palabra por palabra, con una “memoria” que se va olvidando en textos largos. <b>Transformer</b>: lee todas las palabras a la vez y deja que cada palabra “mire” a todas las demás (eso es la <b>atención</b>). Hoy los Transformers son los mejores para texto.`,
+  ana:`La CNN es un ojo que mira una foto por zonas. La LSTM es alguien leyendo en voz alta sin poder volver atrás. El Transformer es alguien que ve la frase completa y subraya qué palabras se relacionan entre sí.`,
+  pro:`Usamos un Transformer (BETO), <b>no</b> VGG, porque nuestro dato es texto, no imágenes. Lo que sí copiamos de la forma en que se usa VGG es la idea de partir de una red ya entrenada (siguiente capítulo).`},
+ {id:'c-atencion', t:'La atención, explicada con una frase',
+  idea:`En “La comida estaba deliciosa <b>pero</b> el servicio fue lentísimo”, para entender el sentimiento hay que conectar “pero” con lo que viene después, y “lentísimo” con “servicio”. La <b>atención</b> calcula, para cada palabra, cuánto debe fijarse en cada una de las otras, y mezcla su información según esos porcentajes. BETO lo hace con 12 “cabezas” a la vez, cada una especializada en un tipo de relación (quién hace qué, qué adjetivo va con qué sustantivo, negaciones…).`,
+  ana:`Cuando lees “ella se lo dio a él”, tu cerebro automáticamente busca a quién se refiere “ella” y “él” en la frase anterior. Eso es atención.`,
+  pro:`Hay 12 capas y cada una tiene 12 cabezas de atención. En <a href="#capas">Etapas intermedias</a> puedes ver a qué palabras le presta atención el modelo final.`},
+ {id:'c-transfer', t:'Preentrenamiento y transfer learning',
+  idea:`Entrenar una red grande desde cero necesita miles de millones de palabras y semanas de cómputo. La solución: alguien ya entrenó una red gigante para una tarea general (adivinar palabras tapadas en millones de textos en español), y en el camino aprendió gramática, vocabulario y mucho del significado. Nosotros <b>reutilizamos</b> esa red y solo le enseñamos nuestra tarea. Eso es <b>transfer learning</b> (transferencia de aprendizaje).`,
+  ana:`Contratar a alguien que ya habla español perfecto y solo enseñarle a clasificar reseñas, en lugar de enseñarle a hablar desde bebé. En imágenes se hace igual: se toma una <b>VGG ya entrenada con ImageNet</b> (14 millones de fotos) y se adapta para, por ejemplo, detectar enfermedades en hojas.`,
+  pro:`BETO fue preentrenado por la Universidad de Chile con ~3.000 millones de palabras en español. Nosotros lo adaptamos con ${miles(D.datos.tamanos.train)} reseñas.`},
+ {id:'c-bert', t:'BERT y BETO',
+  idea:`<b>BERT</b> (Google, 2018) es un Transformer famoso que se preentrena tapando palabras al azar y adivinándolas mirando el contexto de los dos lados. <b>BETO</b> es un BERT entrenado <b>solo con texto en español</b>, así que entiende mejor nuestro idioma que las versiones multilingües, que reparten su “cerebro” entre 100 idiomas.`,
+  ana:`BERT es un lector que se volvió experto haciendo millones de ejercicios de “complete la palabra que falta: El perro ___ al cartero”.`,
+  pro:`Lo comparamos con DistilBERT multilingüe (una versión reducida que sabe 104 idiomas): BETO ganó por ${((B.test.f1_macro-M.test.f1_macro)*100).toFixed(1).replace('.',',')} puntos.`},
+ {id:'c-finetune', t:'Fine-tuning (ajuste fino)',
+  idea:`Al BETO preentrenado le ponemos encima una capa nueva y pequeña (de 768 números a 3, una salida por clase) y seguimos entrenando <b>todo</b> con nuestras reseñas, pero con un learning rate muy pequeño para no “borrarle” lo que ya sabía. Esto es <b>fine-tuning</b>. La capa final da tres números y la <b>softmax</b> los convierte en probabilidades que suman 100% (p. ej. negativo 5%, neutral 15%, positivo 80%).`,
+  ana:`Afinar una guitarra que ya está casi afinada: giras las clavijas apenas un poco. Si las giras mucho, la desafinas.`,
+  pro:`Learning rate ${B.hiperparametros.lr}, ${Math.round(B.segundos_entrenamiento/60)} minutos. Comparado con dejar BETO congelado y entrenar solo la capa final, ajustar todo da bastante mejor resultado.`},
+ {id:'c-metricas', t:'¿Cómo sabemos si es bueno? Las métricas',
+  idea:`<b>Accuracy</b> (exactitud): de todas las reseñas, qué porcentaje acertó. <b>Precisión</b> de una clase: de las que el modelo dijo “negativo”, cuántas lo eran. <b>Recall</b> (sensibilidad) de una clase: de las que realmente eran negativas, cuántas encontró. <b>F1</b>: un promedio especial de precisión y recall que solo es alto si ambos lo son. <b>F1 macro</b>: el F1 de cada clase promediado, para que las tres clases cuenten igual. La <b>matriz de confusión</b> es una tabla que muestra qué confundió con qué.`,
+  ana:`Un detector de incendios con mucha precisión casi nunca da falsas alarmas; con mucho recall nunca deja pasar un incendio. Quieres las dos cosas, y eso mide el F1.`,
+  pro:`F1 macro de BETO en prueba: <b>${dec(B.test.f1_macro)}</b> (la meta era 0,70). Usamos F1 macro y no solo accuracy porque en la vida real el 87% de las reseñas son positivas: un modelo que dijera siempre “positivo” tendría 87% de accuracy sin servir para nada.`},
+ {id:'c-baseline', t:'Baselines: ¿contra qué nos comparamos?',
+  idea:`Un número solo (“80%”) no dice si algo es bueno. Por eso se compara contra modelos de referencia (<b>baselines</b>). El más simple, <b>TF-IDF + regresión logística</b>, no es una red profunda: cuenta qué palabras aparecen (dando más peso a las palabras raras e informativas) y aprende un peso por palabra. Es rápido y sorprendentemente bueno, pero no entiende el orden ni el contexto.`,
+  ana:`Antes de decir que un carro nuevo es rápido, lo comparas con uno normal en la misma pista.`,
+  pro:`TF-IDF: ${dec(T.test.f1_macro)} en ${T.segundos_entrenamiento} segundos. BETO: ${dec(B.test.f1_macro)}. La red profunda gana, sobre todo en la clase neutral.`},
+ {id:'c-dominio', t:'Cambio de dominio',
+  idea:`Un modelo funciona mejor con textos parecidos a los que vio al entrenar. Si cambia el país, la plataforma o el tipo de negocio, cambian las palabras y el estilo, y el rendimiento suele bajar. A eso se le llama <b>cambio de dominio</b> (<i>domain shift</i>).`,
+  ana:`Un mesero que aprendió a atender en un restaurante de Ciudad de México y lo pasan a una barbería en Medellín: sabe mucho, pero “bacano”, “parce” o “qué chimba” lo van a confundir.`,
+  pro:`Entrenamos con TripAdvisor México y evaluamos con Google Maps Colombia para medir cuánto se pierde.`},
+];
+function demoNeurona(){ return `<div id="neurona" class="panel bloque">
+  <h3>Neurona de juguete</h3>
+  <p style="color:var(--muted)">Escribe una reseña. Cada palabra conocida aporta su peso; la neurona suma y la activación convierte la suma en una puntuación de 0 a 1.</p>
+  <label for="txt-neurona" class="eyebrow">Tu reseña</label>
+  <textarea id="txt-neurona">La comida estaba deliciosa pero el servicio fue lento</textarea>
+  <div id="res-neurona" class="bloque"></div>
+  <p style="color:var(--muted);font-size:.9rem">Prueba “la comida no estaba buena”: la neurona suma el +2 de “buena” y se equivoca porque no entiende que “no” cambia el sentido. Para eso se necesitan muchas capas y atención.</p></div>`;}
+const PESOS_JUGUETE = {excelente:3, deliciosa:2.5, delicioso:2.5, buena:2, bueno:2, rico:2, recomendado:2, amables:1.5, lento:-1.5, lenta:-1.5, fría:-1.5, frio:-1.5, malo:-2, mala:-2, grosero:-2.5, pésimo:-3, horrible:-3, pero:-0.3};
+function pintarNeurona(){
+  const t=$('#txt-neurona').value.toLowerCase().normalize('NFC');
+  const pal=t.match(/[a-záéíóúñü]+/g)||[]; const usadas=pal.filter(p=>p in PESOS_JUGUETE);
+  const sesgo=0.2, s=usadas.reduce((a,p)=>a+PESOS_JUGUETE[p],sesgo), y=1/(1+Math.exp(-s));
+  const cls = y<0.35?['negativo','c-neg']:y<0.65?['neutral','c-neu']:['positivo','c-pos'];
+  $('#res-neurona').innerHTML=`<div class="fila-tokens">${usadas.length?usadas.map(p=>`<span class="tok">${p} <b class="${PESOS_JUGUETE[p]>0?'c-pos':'c-neg'}">${PESOS_JUGUETE[p]>0?'+':''}${String(PESOS_JUGUETE[p]).replace('.',',')}</b></span>`).join(''):'<span style="color:var(--muted)">Ninguna palabra conocida (prueba: excelente, buena, horrible, grosero, lento…)</span>'}</div>
+   <div class="formula">suma = ${usadas.map(p=>String(PESOS_JUGUETE[p]).replace('.',',')).join(' + ')||'0'} + sesgo 0,2 = ${s.toFixed(1).replace('.',',')}   →   activación sigmoide(${s.toFixed(1).replace('.',',')}) = ${y.toFixed(2).replace('.',',')}</div>
+   <div class="barra-neurona" aria-hidden="true"><i style="left:calc(${(y*100).toFixed(1)}% - 2px)"></i></div>
+   <p>Decisión: <b class="${cls[1]}">${cls[0]}</b></p>`;
+}
+const SIMPLE = {
+ '¿Qué arquitectura usaron':'Usamos una red ya entrenada en español (BETO) y le enseñamos a clasificar reseñas. “Arquitectura” = el diseño de la red: cuántas capas tiene y cómo se conectan.',
+ '¿Usaron VGG':'VGG es una red famosa para fotos. Nosotros trabajamos con texto, así que usamos otra familia de redes (Transformer). Pero sí usamos el mismo truco que se usa con VGG: partir de una red ya entrenada.',
+ '¿Cuáles son las etapas intermedias':'Son los pasos por los que pasa la reseña dentro de la red, desde el texto hasta la respuesta: partir en pedacitos → convertir en números → 12 capas que “leen” y relacionan palabras → resumen → decisión.',
+ '¿Qué aprende cada etapa':'Medimos qué tanto “sabe” de sentimiento cada capa. Las primeras saben poco; las últimas saben mucho. Y el modelo sin entrenar con reseñas ya sabía algo, porque leyó mucho español.',
+ '¿Cómo funciona la auto-atención':'Cada palabra decide en qué otras palabras fijarse para entender su significado en esa frase, y toma información de ellas según cuánto se fijó.',
+ '¿Por qué se divide por':'Es un ajuste numérico para que los porcentajes de atención no se vuelvan extremos (todo en una sola palabra) y la red pueda seguir aprendiendo.',
+ '¿Qué es el token [CLS]':'Es una “palabra” falsa que ponemos al inicio. Durante la lectura va recogiendo información de toda la reseña, y al final la usamos como resumen para decidir.',
+ '¿Qué son las conexiones residuales':'Atajos que dejan pasar la información original junto a la procesada, para que en una red de muchas capas no se pierda la señal. LayerNorm mantiene los números en una escala estable.',
+ '¿Cómo sabe el modelo el orden':'A cada palabra se le suma una “etiqueta de posición” (1ª, 2ª, 3ª…). Sin eso, “el perro mordió al hombre” y “el hombre mordió al perro” serían iguales para la red.',
+ '¿Qué activación usa':'La activación es la pequeña función que decide cuánto se “enciende” cada neurona después de sumar. Sin ella, apilar capas no serviría de nada (todo sería una sola suma).',
+ '¿Por qué un Transformer':'La LSTM lee palabra por palabra y se le olvida el principio en frases largas; el Transformer ve toda la frase a la vez. Y ya existen Transformers entrenados en español.',
+ '¿Por qué BETO y no':'BETO solo sabe español, así que conoce mejor nuestro idioma que modelos que reparten su conocimiento entre 100 idiomas. Y es mucho más barato que un ChatGPT para algo tan concreto.',
+ '¿Qué es WordPiece':'Es la forma de partir el texto: palabras comunes enteras y palabras raras en pedazos. Así cualquier palabra, incluso inventada, se puede representar.',
+ '¿Qué significa “cased”':'“Cased” = distingue mayúsculas (PÉSIMO ≠ pésimo). “Whole Word Masking” = cómo aprendió español: tapando palabras completas y adivinándolas.',
+ '¿Qué es fine-tuning':'Tomar la red ya entrenada y seguir entrenándola un poquito con nuestros ejemplos. No “congelamos” (bloqueamos) ninguna parte: todo se ajusta, pero suavemente.',
+ '¿Por qué un learning rate':'El learning rate es el tamaño del paso al corregir. Si es grande, la red “olvida” todo lo que sabía de español; por eso pasos muy pequeños.',
+ '¿Cómo eligieron los hiperparámetros':'Probamos varias configuraciones y nos quedamos con la que mejor le fue en los “simulacros” (validación), sin mirar el examen final (prueba).',
+ '¿Qué optimizador':'El optimizador es el método que decide cómo corregir los pesos en cada paso. La pérdida es el número que mide qué tan mal lo hizo la red.',
+ '¿Qué es el warmup':'Al principio damos pasos muy pequeños y los vamos agrandando, para no dañar a la red mientras la capa nueva todavía está diciendo cosas al azar.',
+ '¿Hubo sobreajuste':'Sí, si entrenábamos de más la red empezaba a memorizar. Lo detectamos con validación y nos quedamos con la versión de antes de que empezara a memorizar.',
+ '¿Por qué max_len':'Es cuántos pedacitos de texto lee como máximo por reseña. Más largo = lee más pero tarda más. Con 256 casi ninguna reseña queda cortada.',
+ '¿Cuánto tardó':'Unos minutos en una tarjeta de video de portátil, porque partimos de una red ya entrenada.',
+ '¿Qué es fp16':'Hacer las cuentas con números de menos decimales para ir el doble de rápido y usar menos memoria, sin perder calidad.',
+ '¿Cómo aseguran reproducibilidad':'Fijamos el “azar” con una semilla, así si alguien corre el código obtiene los mismos resultados.',
+ '¿De dónde salen los datos':'De reseñas reales de TripAdvisor en México, públicas para investigación. Las estrellas nos dan la respuesta correcta.',
+ '¿Por qué balancearon':'Casi todas las reseñas son positivas. Si no igualamos, la red aprende a decir siempre “positivo”. Igualamos las tres clases para que aprenda a reconocerlas todas.',
+ '¿Por qué F1 macro':'Porque el porcentaje de aciertos engaña cuando una clase es mucho más común. F1 macro le da la misma importancia a las tres clases.',
+ '¿Por qué tres clases':'Dos clases dejan fuera las opiniones mixtas; cinco (las estrellas exactas) son demasiado subjetivas. Tres es el punto útil.',
+ '¿Cómo evitaron fuga':'“Fuga” es que el modelo vea, sin querer, datos del examen mientras estudia. Lo evitamos quitando repetidos y separando los grupos una sola vez.',
+ '¿Qué preprocesamiento':'Arreglamos letras dañadas (tildes mal guardadas) y unimos título y texto. No quitamos tildes ni mayúsculas porque le dan información a la red.',
+ '¿Cumplieron el objetivo':'Sí: la meta era 0,70 y obtuvimos más de 0,80.',
+ '¿Por qué falla más en la clase neutral':'Porque “más o menos” es difícil hasta para una persona: una reseña de 3 estrellas mezcla cosas buenas y malas.',
+ '¿Qué tan mejor es que el baseline':'El método simple cuenta palabras; BETO entiende contexto (“no está bueno”, “bonito pero caro”). Eso le da varios puntos de ventaja.',
+ '¿Qué es el cambio de dominio':'El modelo aprendió con reseñas mexicanas de TripAdvisor; en Google Maps colombiano cambian las palabras y el estilo, y eso lo puede confundir.',
+ '¿Qué harían para mejorar':'Sobre todo, darle reseñas colombianas para que aprenda nuestra forma de escribir.',
+ '¿El modelo entiende sarcasmo':'A medias: entiende “bonito pero caro”, pero un sarcasmo sin pistas (“excelente, solo esperé una hora”) lo puede engañar.',
+ '¿Para qué sirve esto':'Para que un negocio sepa automáticamente qué dicen sus clientes y atienda primero las quejas.',
+};
+function simpleDe(p){ const k=Object.keys(SIMPLE).find(k=>p[1].startsWith(k)); return k?`<div class="simple"><b class="et">En palabras simples</b><p>${SIMPLE[k]}</p></div>`:''; }
+function vistaDesdeCero(){ return `
+<section class="vista">
+  <div class="bloque"><span class="eyebrow">Para quien empieza de cero</span><h1>Lo que necesitas saber, paso a paso</h1>
+  <p class="lead">${CAPS.length} ideas cortas, en orden. Cada una tiene la idea, una comparación de la vida diaria y cómo aparece en tu proyecto. Léelas en orden una vez y luego pasa a las demás pestañas.</p>
+  <nav class="indice" aria-label="Capítulos">${CAPS.map((c,i)=>`<a href="#desde-cero" data-ir="${c.id}">${i+1}. ${c.t}</a>`).join('')}</nav></div>
+  ${CAPS.map((c,i)=>`<article class="capitulo" id="${c.id}"><span class="num">Idea ${i+1} de ${CAPS.length}</span><h2>${c.t}</h2>
+   <div class="trio"><div><span class="eyebrow">La idea</span><p>${c.idea}</p></div><div><span class="eyebrow">Como en la vida real</span><p>${c.ana}</p></div><div><span class="eyebrow">En tu proyecto</span><p>${c.pro}</p></div></div>
+   ${c.demo?demoNeurona():''}</article>`).join('')}
+  <div class="panel bloque"><h3>Siguiente paso</h3><p>Ahora ve a <a href="#resumen">Resumen</a> y luego a <a href="#arquitectura">Arquitectura</a>. Cuando aparezca una palabra rara, búscala en el <a href="#glosario">Glosario</a>. Las <a href="#preguntas">Preguntas</a> traen cada respuesta primero en palabras simples.</p></div>
+</section>`;}
+
 function vistaGlosario(){ const G=[
+ ['Neurona artificial','Cuenta simple: multiplica entradas por pesos, suma, y pasa el resultado por una activación.'],
+ ['Peso / parámetro','Número que la red ajusta al aprender. BETO tiene ~110 millones.'],
+ ['Capa','Grupo de neuronas que trabajan al mismo tiempo; la salida de una capa entra a la siguiente.'],
+ ['Activación','Función que decide cuánto “se enciende” una neurona (ReLU, GELU, tanh, sigmoide).'],
+ ['Función de pérdida (loss)','Número que mide qué tan equivocada está la red; entrenar es hacerlo bajar.'],
+ ['Gradiente','Dirección en que hay que mover cada peso para que la pérdida baje.'],
+ ['Backpropagation','Algoritmo que calcula los gradientes desde la salida hacia atrás, capa por capa.'],
+ ['Learning rate','Tamaño del paso al corregir los pesos.'],
+ ['Lote (batch)','Grupo de ejemplos que la red procesa antes de dar un paso de corrección.'],
+ ['Época','Una pasada completa por todos los datos de entrenamiento.'],
+ ['Hiperparámetro','Perilla que se fija antes de entrenar (learning rate, épocas, longitud máxima).'],
+ ['Sobreajuste (overfitting)','Cuando la red memoriza el entrenamiento y falla con datos nuevos.'],
+ ['Dropout','Apagar neuronas al azar durante el entrenamiento para evitar que memorice.'],
+ ['Checkpoint','Copia guardada de la red en un momento del entrenamiento.'],
+ ['Token','Pedacito de texto (palabra o parte de palabra) que la red procesa.'],
+ ['Embedding','Lista de números que representa el significado de un token.'],
+ ['Vector / tensor','Lista de números / tabla de números con varias dimensiones, p. ej. [lote, tokens, 768].'],
+ ['GPU','Tarjeta de video; hace miles de cuentas en paralelo, ideal para redes neuronales.'],
+ ['CNN','Red convolucional, especializada en imágenes. VGG y ResNet son CNN.'],
+ ['VGG','CNN de 2014 (Oxford) con 16–19 capas de filtros 3×3; muy usada preentrenada en ImageNet.'],
+ ['RNN / LSTM','Redes que leen secuencias paso a paso con memoria; antecesoras del Transformer en texto.'],
+ ['Transformer','Arquitectura basada en atención, sin recurrencia ni convolución (Vaswani et al., 2017).'],
  ['Transformer','Arquitectura basada en atención, sin recurrencia ni convolución (Vaswani et al., 2017).'],
  ['BERT','Transformer de solo encoder preentrenado con Masked Language Modeling (Devlin et al., 2019).'],
  ['BETO','BERT-base preentrenado en español por la U. de Chile (Cañete et al., 2020).'],
@@ -493,14 +672,18 @@ function vistaGlosario(){ const G=[
 <li>Cañete et al. (2020). Spanish Pre-Trained BERT Model and Evaluation Data (BETO).</li><li>Sanh et al. (2019). DistilBERT, a distilled version of BERT.</li>
 <li>Tenney et al. (2019). BERT Rediscovers the Classical NLP Pipeline.</li><li>Rest-Mex 2025 (IberLEF), corpus de reseñas turísticas de México.</li></ul></div></section>`;}
 
-const VISTAS = {resumen:vistaResumen, datos:vistaDatos, arquitectura:vistaArquitectura, capas:vistaCapas, entrenamiento:vistaEntrenamiento, resultados:vistaResultados, preguntas:vistaPreguntas, guion:vistaGuion, glosario:vistaGlosario};
+const VISTAS = {'desde-cero':vistaDesdeCero, resumen:vistaResumen, datos:vistaDatos, arquitectura:vistaArquitectura, capas:vistaCapas, entrenamiento:vistaEntrenamiento, resultados:vistaResultados, preguntas:vistaPreguntas, guion:vistaGuion, glosario:vistaGlosario};
 
 function mostrar(){
-  const id = (location.hash||'#resumen').slice(1);
-  const v = VISTAS[id] ? id : 'resumen';
+  const id = (location.hash||'#desde-cero').slice(1);
+  const v = VISTAS[id] ? id : 'desde-cero';
   $('#app').innerHTML = VISTAS[v]();
   document.querySelectorAll('#nav a').forEach(a=>a.setAttribute('aria-current', a.dataset.v===v?'page':'false'));
   const act = document.querySelector(`#nav a[data-v="${v}"]`); if(act) act.scrollIntoView({block:'nearest',inline:'nearest'});
+  if(v==='desde-cero'){
+    $('#txt-neurona').addEventListener('input', pintarNeurona); pintarNeurona();
+    document.querySelectorAll('[data-ir]').forEach(a=>a.onclick=e=>{e.preventDefault(); document.getElementById(a.dataset.ir).scrollIntoView({behavior:'smooth',block:'start'});});
+  }
   if(v==='arquitectura'){
     const pintar=i=>{const e=ETAPAS[i]; $('#det').innerHTML=`<span class="eyebrow">Etapa ${e.n} · salida ${e.f}</span><h3>${e.t}</h3>${e.d}`;
       document.querySelectorAll('.pila button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.et==i));};
