@@ -38,11 +38,24 @@ src/
   entrenar_transformer.py Etapa 2b: fine-tuning de BETO / DistilBERT multilingüe con Trainer
   analisis_capas.py       Etapa 3b: sondas lineales y PCA del [CLS] en las 13 etapas internas
   evaluar_externo.py      Etapa 3c: evaluación en reseñas de Google Maps de Colombia
+  demo.py                 demo en vivo: escribe una reseña y BETO la clasifica
   metricas.py, externo.py utilidades
 data/externo/             plantilla e instrucciones del conjunto colombiano (etiquetado manual)
 resultados/               métricas (JSON), historiales de entrenamiento, predicciones
 guia/                     guía de estudio interactiva para la sustentación
 ```
+
+## Demo en vivo
+
+Con el modelo ya entrenado (queda en `modelos/_checkpoints/`), desde `src/`:
+
+```bash
+python demo.py --ejemplos     # frases preparadas y luego modo interactivo
+python demo.py                # solo modo interactivo
+python demo.py "texto"        # clasifica un único texto
+```
+
+Muestra la clase predicha y la probabilidad de cada clase. Funciona sin internet.
 
 ## Cómo reproducir
 
