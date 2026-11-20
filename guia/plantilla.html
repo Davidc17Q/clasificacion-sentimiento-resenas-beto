@@ -126,6 +126,12 @@ dl.glosario dd{margin:0;color:var(--muted)}
 #neurona textarea{width:100%;min-height:70px;font:inherit;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);resize:vertical}
 .barra-neurona{height:12px;border-radius:99px;background:linear-gradient(90deg,var(--neg),var(--neu),var(--pos));position:relative}
 .barra-neurona i{position:absolute;top:-5px;width:4px;height:22px;border-radius:2px;background:var(--fg);transition:left .25s}
+.bloque-codigo{display:grid;gap:10px;padding-top:18px;border-top:1px solid var(--line)}
+.bloque-codigo .cab{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.bloque-codigo .explica{display:grid;gap:4px;max-width:72ch}
+pre.codigo{margin:0;background:var(--surface-2);border-radius:10px;padding:12px 14px;overflow-x:auto;font:400 .8rem/1.55 var(--font-mono);color:var(--fg)}
+pre.codigo .ln{display:inline-block;width:3ch;margin-right:12px;text-align:right;color:var(--muted);user-select:none}
+button.siguiente{justify-self:start;font:500 .92rem var(--font-body);padding:9px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);cursor:pointer}
 .formula{font-family:var(--font-mono);background:var(--surface-2);padding:10px 12px;border-radius:8px;overflow-x:auto;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -148,7 +154,7 @@ const EXT = B.externo_colombia;
 /* -------- Secciones -------- */
 const SECCIONES = [
   ['desde-cero','Empieza aquí'], ['resumen','Resumen'], ['datos','Datos'], ['arquitectura','Arquitectura'], ['capas','Etapas intermedias'],
-  ['entrenamiento','Entrenamiento'], ['resultados','Resultados'], ['preguntas','Preguntas'], ['guion','Guion'], ['glosario','Glosario']
+  ['entrenamiento','Entrenamiento'], ['resultados','Resultados'], ['codigo','Código'], ['preguntas','Preguntas'], ['guion','Guion'], ['glosario','Glosario']
 ];
 
 function vistaResumen(){ return `
@@ -645,6 +651,8 @@ function vistaDesdeCero(){ return `
   <div class="panel bloque"><h3>Siguiente paso</h3><p>Ahora ve a <a href="#resumen">Resumen</a> y luego a <a href="#arquitectura">Arquitectura</a>. Cuando aparezca una palabra rara, búscala en el <a href="#glosario">Glosario</a>. Las <a href="#preguntas">Preguntas</a> traen cada respuesta primero en palabras simples.</p></div>
 </section>`;}
 
+/*__CODIGO__*/
+
 function vistaGlosario(){ const G=[
  ['Neurona artificial','Cuenta simple: multiplica entradas por pesos, suma, y pasa el resultado por una activación.'],
  ['Peso / parámetro','Número que la red ajusta al aprender. BETO tiene ~110 millones.'],
@@ -668,7 +676,6 @@ function vistaGlosario(){ const G=[
  ['VGG','CNN de 2014 (Oxford) con 16–19 capas de filtros 3×3; muy usada preentrenada en ImageNet.'],
  ['RNN / LSTM','Redes que leen secuencias paso a paso con memoria; antecesoras del Transformer en texto.'],
  ['Transformer','Arquitectura basada en atención, sin recurrencia ni convolución (Vaswani et al., 2017).'],
- ['Transformer','Arquitectura basada en atención, sin recurrencia ni convolución (Vaswani et al., 2017).'],
  ['BERT','Transformer de solo encoder preentrenado con Masked Language Modeling (Devlin et al., 2019).'],
  ['BETO','BERT-base preentrenado en español por la U. de Chile (Cañete et al., 2020).'],
  ['DistilBERT','Versión de 6 capas entrenada por destilación: imita las salidas de un BERT “maestro”.'],
@@ -681,7 +688,9 @@ function vistaGlosario(){ const G=[
  ['Logit','Salida cruda de la capa lineal antes de la softmax.'],
  ['Softmax','Convierte logits en probabilidades positivas que suman 1.'],
  ['Entropía cruzada','Pérdida −log(probabilidad asignada a la clase correcta).'],
- ['AdamW','Adam con weight decay desacoplado del gradiente.'],
+ ['AdamW','Optimizador: decide cómo corregir cada peso. Recuerda la dirección en que venía corrigiendo (momento), da a cada peso su propio tamaño de paso, y encoge un poco los pesos (weight decay) para no memorizar.'],
+ ['Semilla (seed)','Número que fija el punto de partida del azar. Misma semilla = mismos resultados al repetir. En el proyecto: 42.'],
+ ['[SEP]','Token especial al final de la secuencia; marca dónde termina el texto (en BERT también separa dos frases).'],
  ['Warmup','Subida gradual del learning rate al inicio del entrenamiento.'],
  ['Early stopping','Detener cuando la métrica de validación deja de mejorar.'],
  ['F1 macro','Promedio sin ponderar del F1 de cada clase.'],
@@ -698,7 +707,7 @@ function vistaGlosario(){ const G=[
 <li>Cañete et al. (2020). Spanish Pre-Trained BERT Model and Evaluation Data (BETO).</li><li>Sanh et al. (2019). DistilBERT, a distilled version of BERT.</li>
 <li>Tenney et al. (2019). BERT Rediscovers the Classical NLP Pipeline.</li><li>Rest-Mex 2025 (IberLEF), corpus de reseñas turísticas de México.</li></ul></div></section>`;}
 
-const VISTAS = {'desde-cero':vistaDesdeCero, resumen:vistaResumen, datos:vistaDatos, arquitectura:vistaArquitectura, capas:vistaCapas, entrenamiento:vistaEntrenamiento, resultados:vistaResultados, preguntas:vistaPreguntas, guion:vistaGuion, glosario:vistaGlosario};
+const VISTAS = {'desde-cero':vistaDesdeCero, resumen:vistaResumen, datos:vistaDatos, arquitectura:vistaArquitectura, capas:vistaCapas, entrenamiento:vistaEntrenamiento, resultados:vistaResultados, codigo:vistaCodigo, preguntas:vistaPreguntas, guion:vistaGuion, glosario:vistaGlosario};
 
 function mostrar(){
   const id = (location.hash||'#desde-cero').slice(1);
@@ -728,6 +737,7 @@ function mostrar(){
       document.querySelectorAll('#ctrl-att button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.i==i));};
     document.querySelectorAll('#ctrl-att button').forEach(b=>b.onclick=()=>pintarAtt(+b.dataset.i)); pintarAtt(0);
   }
+  if(v==='codigo'){ document.querySelectorAll('#ctrl-arch button').forEach(b=>b.onclick=()=>pintarArchivo(+b.dataset.i)); pintarArchivo(0); }
   if(v==='preguntas'){
     const set=m=>{document.querySelectorAll('#modo button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m)); m==='lista'?renderLista(null):renderExamen();};
     document.querySelectorAll('#modo button').forEach(b=>b.onclick=()=>set(b.dataset.m)); set('lista');

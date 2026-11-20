@@ -68,11 +68,16 @@ def main():
         "errores": errores,
         "capas": leer(RES / "capas.json") if (RES / "capas.json").exists() else None,
     }
+    codigo = ["config.py", "preparar_datos.py", "metricas.py", "baseline_tfidf.py", "entrenar_transformer.py",
+              "analisis_capas.py", "evaluar_externo.py", "demo.py"]
+    datos["codigo"] = {f: (RAIZ / "src" / f).read_text(encoding="utf-8") for f in codigo}
+    datos["codigo"]["correr_busqueda.sh"] = (RAIZ / "correr_busqueda.sh").read_text(encoding="utf-8")
     if datos["capas"]:
         datos["capas"]["n_muestras"] = 2100
     plantilla = (RAIZ / "guia" / "plantilla.html").read_text(encoding="utf-8")
     js = json.dumps(datos, ensure_ascii=False).replace("</", "<\\/")
     salida = RAIZ / "guia" / "guia-defensa.html"
+    plantilla = plantilla.replace("/*__CODIGO__*/", (RAIZ / "guia" / "codigo.js").read_text(encoding="utf-8"))
     salida.write_text(plantilla.replace("/*__DATOS__*/", js), encoding="utf-8")
     print("Guía generada:", salida, f"({salida.stat().st_size/1024:.0f} KB)")
 
